@@ -293,3 +293,31 @@ def test_edit_merged_widget_refreshes_the_skin(monkeypatch, kodi):
     edit.edit_merged_widget("group-1")
 
     assert refreshed == ["widget-1"]
+
+
+def test_the_merged_entry_opens_the_widget_of_the_skin(monkeypatch, kodi):
+    """The entry has to open the merged widget that already exists.
+
+    A new widget would show all the paths of the group again and the paths
+    that were chosen for the widget of the skin would be ignored.
+    """
+    _patch_group(monkeypatch)
+    monkeypatch.setattr(
+        manage, "get_merged_widget", lambda group_id: {"id": "widget-1"}
+    )
+
+    menu.group_menu("group-1")
+
+    urls = {item.label: url for url, item, _is_folder in kodi.directory_items}
+    assert "id=widget-1" in urls["Trending (Merged)"]
+
+
+def test_the_merged_entry_uses_a_new_widget_when_there_is_none(monkeypatch, kodi):
+    _patch_group(monkeypatch)
+    monkeypatch.setattr(manage, "get_merged_widget", lambda group_id: {})
+
+    menu.group_menu("group-1")
+
+    urls = {item.label: url for url, item, _is_folder in kodi.directory_items}
+    assert "id=" in urls["Trending (Merged)"]
+    assert "id=widget-1" not in urls["Trending (Merged)"]

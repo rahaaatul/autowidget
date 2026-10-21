@@ -61,6 +61,34 @@ def widget_updated_at(widget_id):
         return 0
 
 
+def get_merged_widget(group_id):
+    """The merged widget of a group.
+
+    The widget a skin points at is preferred, that is the one that is shown
+    in the skin and in the list of the active widgets.  Widgets that no skin
+    points at are leftovers and are removed by :func:`clean`.
+    """
+    widgets = [
+        widget
+        for widget in find_defined_widgets(group_id)
+        if widget.get("action") == "merged"
+    ]
+    if not widgets:
+        return {}
+
+    referenced = [
+        widget for widget in widgets if is_widget_referenced(widget.get("id", ""))
+    ]
+    if referenced:
+        widgets = referenced
+
+    widgets.sort(
+        key=lambda widget: widget_updated_at(widget.get("id", "")),
+        reverse=True,
+    )
+    return widgets[0]
+
+
 def clean(widget_id=None, notify=False, all=False):
     if all:
         for widget in find_defined_widgets():

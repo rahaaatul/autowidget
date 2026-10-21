@@ -576,7 +576,7 @@ def edit_merged_widget(group_id):
     if not paths:
         return
 
-    widget_def = _get_merged_widget(group_id)
+    widget_def = manage.get_merged_widget(group_id)
     if not widget_def:
         return
 
@@ -595,34 +595,3 @@ def edit_merged_widget(group_id):
     # The skin has to render the widget again, it now shows other paths.
     utils.set_widget_refresh(widget_def["id"])
     utils.update_container(True)
-
-
-def _get_merged_widget(group_id):
-    """The merged widget of a group.
-
-    The widget a skin points at is preferred, that is the one that is shown
-    in the skin and in the list of the active widgets.  Widgets that no skin
-    points at are leftovers and are removed when the list of the active
-    widgets is opened.
-    """
-    widgets = [
-        widget
-        for widget in manage.find_defined_widgets(group_id)
-        if widget.get("action") == "merged"
-    ]
-    if not widgets:
-        return {}
-
-    referenced = [
-        widget
-        for widget in widgets
-        if manage.is_widget_referenced(widget.get("id", ""))
-    ]
-    if referenced:
-        widgets = referenced
-
-    widgets.sort(
-        key=lambda widget: manage.widget_updated_at(widget.get("id", "")),
-        reverse=True,
-    )
-    return widgets[0]

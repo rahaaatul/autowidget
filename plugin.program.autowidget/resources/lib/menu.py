@@ -738,14 +738,23 @@ def _create_action_items(group_def, _id):
             isFolder=True,
             props=props,
         )
+        # The merged entry opens the merged widget of the group, the one a
+        # skin points at.  A new widget would show all the paths of the
+        # group again and the paths that were chosen for the widget of the
+        # skin would be ignored.
+        merged_id = manage.get_merged_widget(group_id).get("id", "") or str(_id)
+        merged_refresh = (
+            f"$INFO[Window(10000).Property(autowidget-{merged_id}-refresh)]"
+        )
+
         directory.add_menu_item(
             title=utils.get_string(30065).format(str(group_name)),
             params={
                 "mode": "path",
                 "action": "merged",
                 "group": group_id,
-                "id": str(_id),
-                "refresh": refresh,
+                "id": merged_id,
+                "refresh": merged_refresh,
             },
             art=utils.get_art("merge"),
             isFolder=True,
