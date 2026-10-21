@@ -49,6 +49,12 @@ There is a playlist on YouTube where I keep all of my videos dedicated to AutoWi
 The add-on is a pure Python project, no build system or external dependencies are required. A Python 3.10+ interpreter is enough to build and validate it locally:
 
 ```bash
+# Install the test requirements
+pip install -r tests/requirements.txt
+
+# Run the test suite
+python -m pytest tests
+
 # Validate addon.xml, string references and Python sources
 python3 .github/scripts/check_addon.py
 
@@ -60,13 +66,14 @@ The version in `plugin.program.autowidget/addon.xml` is kept as the `CURRENT_VER
 
 ## Continuous Integration
 ---
-All builds and releases run on GitHub Actions (`.github/workflows`):
+Builds and releases are automated with GitHub Actions (`.github/workflows`):
 
 | Workflow | Trigger | Purpose |
 | --- | --- | --- |
-| `build_pull_request.yml` | push to `dev`, pull request to `dev` | Validates the add-on, builds the zip and uploads it as a workflow artifact |
-| `release.yml` | tag `v*` push, manual run | Builds the add-on, creates a GitHub release with the zip attached, attests its provenance and publishes the Kodi repository index to the `repo` branch |
+| `build_pull_request.yml` | push to `dev`, pull request to `dev` | Runs the test suite, validates the add-on, builds the zip and uploads it as a workflow artifact |
+| `release.yml` | tag `v*` push, manual run | Builds the add-on, creates a GitHub release with the zip attached, attests its provenance, back-merges `main` into `dev` and publishes the Kodi repository index to the `repo` branch |
 | `open_pull_request.yml` | push to `dev` | Opens a draft pull request from `dev` to `main` |
 
-The published add-on zip and the generated repository index (`addons.xml`, `addons.xml.md5`) are pushed to the `repo` branch, which is the location the `repository.autowidget` add-on points at. The old CircleCI configuration was removed because it referenced branches and scripts that no longer exist in this repository.
+The published add-on zip and the generated repository index (`addons.xml`, `addons.xml.md5`) are pushed to the `repo` branch, which is the location the `repository.autowidget` add-on points at. The CircleCI configuration in `.circleci/config.yml` still runs the test suite and the build; its release job is superseded by the `release.yml` workflow because it references branches and a `create_repository.py` script that no longer exist in this repository.
+
 
