@@ -1,3 +1,9 @@
+## [1.0.0-dev.6](https://github.com/rahaaatul/autowidget/compare/v1.0.0-dev.5...v1.0.0-dev.6) (2026-10-21)
+
+### 🐛 Bug Fixes
+
+* **menu:** move the paths action to the merged entry of the group ([fbcabab](https://github.com/rahaaatul/autowidget/commit/fbcababaafd53049bf0fee6d111e4cbb86f0f59c))
+
 ## [1.0.0-dev.5](https://github.com/rahaaatul/autowidget/compare/v1.0.0-dev.4...v1.0.0-dev.5) (2026-10-21)
 
 ### 🐛 Bug Fixes

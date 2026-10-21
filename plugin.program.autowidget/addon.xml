@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.program.autowidget" name="AutoWidget" version="1.0.0~dev.5" provider-name="rahaaatul">
+<addon id="plugin.program.autowidget" name="AutoWidget" version="1.0.0~dev.6" provider-name="rahaaatul">
     <requires>
         <import addon="xbmc.python" version="3.0.1" />
         <import addon="script.module.pil" />
@@ -43,6 +43,10 @@
         <website>https://github.com/rahaaatul/</website>
         <source>https://github.com/rahaaatul/autowidget/</source>
         <news>
+1.0.0~dev.6
+🐛 Bug Fixes
+  - **menu:** move the paths action to the merged entry of the group ([fbcabab](https://github.com/rahaaatul/autowidget/commit/fbcababaafd53049bf0fee6d111e4cbb86f0f59c))
+
 1.0.0~dev.5
 🐛 Bug Fixes
   - **menu:** merge all the paths of a group without asking ([c3c5096](https://github.com/rahaaatul/autowidget/commit/c3c5096a2a2c1e9a3fc446515a977ffec2a0442b))
