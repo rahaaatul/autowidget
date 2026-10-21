@@ -14,6 +14,9 @@ import time
 import unicodedata
 import datetime
 
+# Pillow is provided by Kodi itself (8.4.0 in Kodi 21 "Omega").
+# The script.module.pil dependency only makes it importable on
+# Android and tvOS, where Kodi installs it into that add-on.
 from PIL import Image
 
 from resources.lib.common import settings

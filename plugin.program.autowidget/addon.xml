@@ -45,6 +45,7 @@
         <news>
 3.8.0
  - Target Kodi 21 "Omega" (21.3 or later) and drop support for older releases
+ - Use the Pillow version provided by Kodi (8.4.0)
  - Remove the "six" dependency now that Python 3 is always used
  - Use the Kodi core strings API that replaced xbmc.getLocalizedString
  - Use xbmc.LOGINFO now that xbmc.LOGNOTICE has been removed

@@ -12,7 +12,7 @@ AutoWidget targets the latest stable Kodi release:
 
 * Kodi 21 "Omega" (21.3 or later)
 
-Older releases are not supported. The add-on uses the Kodi Python 3 API (`xbmc.python` 3.0.1) and no longer depends on `six`.
+Older releases are not supported. The add-on uses the Kodi Python 3 API (`xbmc.python` 3.0.1), no longer depends on `six` and uses the Pillow version provided by Kodi.
 
 ## Steps to Install
 ---
