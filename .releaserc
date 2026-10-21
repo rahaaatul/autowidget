@@ -39,32 +39,32 @@
           "types": [
             {
               "type": "feat",
-              "section": "New Features",
+              "section": "\u2728 New Features",
               "hidden": false
             },
             {
               "type": "fix",
-              "section": "Bug Fixes",
+              "section": "\ud83d\udc1b Bug Fixes",
               "hidden": false
             },
             {
               "type": "perf",
-              "section": "Improvements",
+              "section": "\ud83d\udd27 Improvements",
               "hidden": false
             },
             {
               "type": "refactor",
-              "section": "Refactoring",
+              "section": "\u267b\ufe0f Refactoring",
               "hidden": false
             },
             {
               "type": "build",
               "hidden": false,
-              "section": "Continuous Integration"
+              "section": "\ud83d\ude80 Continuous Integration"
             },
             {
               "type": "ci",
-              "section": "Continuous Integration",
+              "section": "\ud83d\ude80 Continuous Integration",
               "hidden": false
             }
           ]
