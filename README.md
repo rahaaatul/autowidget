@@ -78,7 +78,7 @@ Releases are created with [semantic-release](https://semantic-release.gitbook.io
 | `build: Needs bump` | patch |
 | `ci: ...`, `docs: ...`, `chore: ...` | no release |
 
-The release workflow runs on a push to `main`. To create a pre-release, run the `Release` workflow manually with the `dev` branch selected; the pre-releases are marked as such on GitHub and use the `~` notation Kodi expects, for example `1.1.0~dev.1`.
+The release workflow runs on a push to `main` and creates the stable release. To create a pre-release, run the `Release` workflow manually with the `dev` branch selected; the pre-releases are marked as such on GitHub and use the `~` notation Kodi expects, for example `1.0.0~dev.1`.
 
 Every release attaches the built add-on zip, updates `CHANGELOG.md` and the `news` section of `addon.xml` and attests the provenance of the artifact.
 
@@ -89,7 +89,7 @@ Builds and releases are automated with GitHub Actions (`.github/workflows`):
 | Workflow | Trigger | Purpose |
 | --- | --- | --- |
 | `build_pull_request.yml` | push to `dev`, pull request to `dev` or `main` | Runs the test suite, validates the add-on, builds the zip and uploads it as a workflow artifact |
-| `release.yml` | push to `main`, manual run | Runs the test suite and creates the release with semantic-release: changelog, version, tag, GitHub release with the add-on zip and the provenance attestation |
+| `release.yml` | push to `main`, manual run | Runs the test suite and creates the release with semantic-release: changelog, version, tag, GitHub release with the add-on zip and the provenance attestation. A manual run on `dev` creates a pre-release |
 | `open_pull_request.yml` | push to `dev` | Opens a draft pull request from `dev` to `main` |
 
 The version line of this repository starts at `1.0.0`; the historic changelog of the upstream releases is kept in the `news` section of `addon.xml`.

@@ -39,6 +39,8 @@ and the releases are created with [semantic-release](https://semantic-release.gi
 ### ✨ New Features
 
 * reset the add-on version to 1.0.0 and start a new release line
+* reimplement the outstanding upstream pull requests
+* add support for Kodi 21 (Omega)
 * build and release the add-on with GitHub Actions and semantic-release
 
 ### 🐛 Bug Fixes
