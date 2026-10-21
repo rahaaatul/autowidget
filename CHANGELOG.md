@@ -1,3 +1,13 @@
+## [1.1.0-dev.2](https://github.com/rahaaatul/autowidget/compare/v1.1.0-dev.1...v1.1.0-dev.2) (2026-10-21)
+
+### ✨ New Features
+
+* **menu:** sort the merged widget from its context menu ([d584bb2](https://github.com/rahaaatul/autowidget/commit/d584bb22f8b3aa14e5eebb2266e9aa67af924156))
+
+### 🚀 Continuous Integration
+
+* back-merge main into dev after a release ([a4295d6](https://github.com/rahaaatul/autowidget/commit/a4295d677ba4a979dd7bea0f257d4fed51685a4a))
+
 ## [1.1.0-dev.1](https://github.com/rahaaatul/autowidget/compare/v1.0.0...v1.1.0-dev.1) (2026-10-21)
 
 ### ✨ New Features
