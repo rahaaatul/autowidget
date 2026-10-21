@@ -73,6 +73,7 @@ def test_every_string_is_translated(language):
 
 @pytest.mark.parametrize("language", LANGUAGES)
 def test_no_broken_markup(language):
+    reference = _reference()
     entries = _parse(os.path.join(LANGUAGE_DIR, language, "strings.po"))
 
     for msg_id, (msgid, msgstr) in entries.items():
@@ -90,3 +91,41 @@ def test_no_broken_markup(language):
         assert msgstr.count("[/COLOR]") == source.count("[/COLOR]"), (
             "#{} lost a colour tag".format(msg_id)
         )
+
+
+# Strings that are still shown in english, they are tracked here so that
+# the translations don't get worse. Lower the number when a string is
+# translated.
+UNTRANSLATED = {
+    "ar_sa": 5,
+    "da_dk": 5,
+    "de_de": 11,
+    "el_gr": 2,
+    "en_gb": 167,
+    "en_us": 167,
+    "es_es": 2,
+    "es_mx": 5,
+    "fr_fr": 3,
+    "it_it": 11,
+    "nl_nl": 6,
+    "pt_br": 7,
+}
+
+
+@pytest.mark.parametrize("language", LANGUAGES)
+def test_untranslated_strings_do_not_grow(language):
+    entries = _parse(os.path.join(LANGUAGE_DIR, language, "strings.po"))
+    untranslated = sum(
+        1
+        for msgid, msgstr in entries.values()
+        if msgid
+        and msgstr
+        and msgstr.strip() == msgid.strip()
+        and len(msgid.strip()) > 3
+    )
+    known = UNTRANSLATED[language.replace("resource.language.", "")]
+    assert untranslated <= known, (
+        "{} has {} untranslated strings, at most {} are known".format(
+            language, untranslated, known
+        )
+    )
