@@ -120,7 +120,9 @@ def test_clean_artwork_url_keeps_local_paths_absolute():
     mistaken for a skin relative one, which broke the artwork of the
     add-on's own icons in skins like Arctic Fuse 3.
     """
-    local = os.path.join(utils._addon_root, "resources", "media", "fanart", "folder.png")
+    local = os.path.join(
+        utils._addon_root, "resources", "media", "fanart", "folder.png"
+    )
     cleaned = utils.clean_artwork_url(local)
     assert cleaned == local
     assert "special://" not in cleaned

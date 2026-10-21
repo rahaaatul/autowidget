@@ -587,6 +587,15 @@ def set_property(property, value, window=10000):
     xbmcgui.Window(window).setProperty(property, value)
 
 
+def set_widget_refresh(widget_id):
+    """Tell the skin to render the widget again.
+
+    The skin builds the url of a widget with the refresh property of the
+    widget, so a new value makes the skin load the widget again.
+    """
+    set_property(f"autowidget-{widget_id}-refresh", f"{time.time()}")
+
+
 def get_property(property, window=10000):
     return xbmcgui.Window(window).getProperty(property)
 

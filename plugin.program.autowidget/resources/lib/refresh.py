@@ -15,7 +15,6 @@ from resources.lib.common import cache, settings, utils, version
 
 _addon_data = settings.get_addon_info("profile")
 
-skin_string_pattern = "autowidget-{}-{}"
 _properties = ["context.autowidget"]
 
 
@@ -256,8 +255,7 @@ class RefreshService(xbmc.Monitor):
 
 
 def _update_strings(widget_def):
-    refresh = skin_string_pattern.format(widget_def["id"], "refresh")
-    utils.set_property(refresh, f"{time.time()}")
+    utils.set_widget_refresh(widget_def["id"])
     utils.log(
         "Refreshing widget {} to display {}".format(
             widget_def["id"], widget_def["path"]

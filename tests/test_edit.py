@@ -1,6 +1,5 @@
 from resources.lib import edit
 
-
 PATHS = [
     {"id": "shows-1", "label": "Trending shows"},
     {"id": "movies-1", "label": "Trending movies"},
@@ -9,13 +8,13 @@ PATHS = [
 
 def _patch_paths(monkeypatch):
     monkeypatch.setattr(
-        edit.manage, "get_path_by_id", lambda path_id, group_id=None: next(
+        edit.manage,
+        "get_path_by_id",
+        lambda path_id, group_id=None: next(
             (p for p in PATHS if p["id"] == path_id), {}
-        )
+        ),
     )
-    monkeypatch.setattr(
-        edit.manage, "find_defined_paths", lambda group_id=None: PATHS
-    )
+    monkeypatch.setattr(edit.manage, "find_defined_paths", lambda group_id=None: PATHS)
 
 
 def test_widget_options_resolve_the_path_ids(monkeypatch):

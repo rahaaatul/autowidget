@@ -7,7 +7,6 @@ start of Kodi.
 """
 
 import pytest
-
 from resources.lib import edit, manage, menu
 
 
@@ -32,14 +31,15 @@ GROUP = {
     "content": "videos",
 }
 
+
 def _merged_widget(**overrides):
     """A fresh copy of the widget definition."""
-    widget = dict(
-        id="widget-1",
-        action="merged",
-        group="group-1",
-        path=["shows-1", "movies-1"],
-    )
+    widget = {
+        "id": "widget-1",
+        "action": "merged",
+        "group": "group-1",
+        "path": ["shows-1", "movies-1"],
+    }
     widget.update(overrides)
     return widget
 
@@ -59,7 +59,7 @@ STATIC_WIDGET = {
 }
 
 
-def _patch_group(monkeypatch, widget_def=None):
+def _patch_group(monkeypatch, widget_def=None, referenced=False):
     monkeypatch.setattr(
         manage, "get_group_by_id", lambda group_id, *args, **kwargs: GROUP
     )
@@ -76,6 +76,8 @@ def _patch_group(monkeypatch, widget_def=None):
         ),
     )
     monkeypatch.setattr(menu.utils, "update_container", lambda reload=False: None)
+    monkeypatch.setattr(manage, "is_widget_referenced", lambda widget_id: referenced)
+    monkeypatch.setattr(manage, "widget_updated_at", lambda widget_id: 0)
 
 
 def test_merged_path_merges_every_path(monkeypatch):
@@ -207,9 +209,7 @@ def test_edit_merged_widget_preselects_the_current_paths(monkeypatch, kodi):
     assert args[1] == ["Trending shows", "Trending movies"]
 
 
-def test_edit_merged_widget_keeps_the_paths_when_nothing_is_selected(
-    monkeypatch, kodi
-):
+def test_edit_merged_widget_keeps_the_paths_when_nothing_is_selected(monkeypatch, kodi):
     _patch_group(monkeypatch, widget_def=dict(MERGED_WIDGET))
     monkeypatch.setattr(
         manage, "find_defined_widgets", lambda group_id=None: [_merged_widget()]
@@ -227,11 +227,16 @@ def test_edit_merged_widget_keeps_the_paths_when_nothing_is_selected(
 
 def test_edit_merged_widget_picks_the_most_recent_widget(monkeypatch, kodi):
     """A group can have more than one merged widget."""
-    older = _merged_widget(id="widget-old", path=["shows-1"], updated=100)
-    newer = _merged_widget(id="widget-new", path=["movies-1"], updated=200)
+    older = _merged_widget(id="widget-old", path=["shows-1"])
+    newer = _merged_widget(id="widget-new", path=["movies-1"])
     _patch_group(monkeypatch)
     monkeypatch.setattr(
         manage, "find_defined_widgets", lambda group_id=None: [older, newer]
+    )
+    monkeypatch.setattr(
+        manage,
+        "widget_updated_at",
+        lambda widget_id: {"widget-old": 100, "widget-new": 200}.get(widget_id, 0),
     )
     saved = {}
     monkeypatch.setattr(
@@ -242,3 +247,49 @@ def test_edit_merged_widget_picks_the_most_recent_widget(monkeypatch, kodi):
     edit.edit_merged_widget("group-1")
 
     assert saved["id"] == "widget-new"
+
+
+def test_edit_merged_widget_prefers_the_widget_a_skin_points_at(monkeypatch, kodi):
+    """The widget of the skin is the one that is shown and that is kept."""
+    unused = _merged_widget(id="widget-unused", path=["shows-1"])
+    used = _merged_widget(id="widget-used", path=["movies-1"])
+    _patch_group(monkeypatch)
+    monkeypatch.setattr(
+        manage, "find_defined_widgets", lambda group_id=None: [unused, used]
+    )
+    monkeypatch.setattr(
+        manage, "is_widget_referenced", lambda widget_id: widget_id == "widget-used"
+    )
+    monkeypatch.setattr(
+        manage,
+        "widget_updated_at",
+        lambda widget_id: {"widget-unused": 200, "widget-used": 100}.get(widget_id, 0),
+    )
+    saved = {}
+    monkeypatch.setattr(
+        manage, "save_path_details", lambda params: saved.update(params)
+    )
+    kodi.dialog_answers["multiselect"] = [0]
+
+    edit.edit_merged_widget("group-1")
+
+    assert saved["id"] == "widget-used"
+
+
+def test_edit_merged_widget_refreshes_the_skin(monkeypatch, kodi):
+    """The skin has to render the widget again, it shows other paths now."""
+    _patch_group(monkeypatch)
+    monkeypatch.setattr(
+        manage, "find_defined_widgets", lambda group_id=None: [_merged_widget()]
+    )
+    monkeypatch.setattr(manage, "save_path_details", lambda params: None)
+    kodi.dialog_answers["multiselect"] = [0]
+
+    refreshed = []
+    monkeypatch.setattr(
+        edit.utils, "set_widget_refresh", lambda widget_id: refreshed.append(widget_id)
+    )
+
+    edit.edit_merged_widget("group-1")
+
+    assert refreshed == ["widget-1"]

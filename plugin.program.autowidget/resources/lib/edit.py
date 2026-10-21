@@ -308,9 +308,7 @@ def _get_widget_options(edit_def):
 
                 group_id = edit_def.get("group", "")
                 if isinstance(_def, list):
-                    paths = [
-                        _get_path_label(_get_path_id(i), group_id) for i in _def
-                    ]
+                    paths = [_get_path_label(_get_path_id(i), group_id) for i in _def]
                     label = ", ".join(paths)
                 else:
                     label = _get_path_label(_get_path_id(_def), group_id)
@@ -586,9 +584,7 @@ def edit_merged_widget(group_id):
     if isinstance(current, dict):
         current = [current.get("id", "")]
 
-    preselect = [
-        idx for idx, path in enumerate(paths) if path.get("id", "") in current
-    ]
+    preselect = [idx for idx, path in enumerate(paths) if path.get("id", "") in current]
 
     idxs = manage.choose_paths(utils.get_string(30088), paths, preselect=preselect)
     if not idxs:
@@ -596,11 +592,19 @@ def edit_merged_widget(group_id):
 
     widget_def["path"] = [paths[idx]["id"] for idx in idxs]
     manage.save_path_details(widget_def)
+    # The skin has to render the widget again, it now shows other paths.
+    utils.set_widget_refresh(widget_def["id"])
     utils.update_container(True)
 
 
 def _get_merged_widget(group_id):
-    """The merged widget of a group, the most recent one when there are more."""
+    """The merged widget of a group.
+
+    The widget a skin points at is preferred, that is the one that is shown
+    in the skin and in the list of the active widgets.  Widgets that no skin
+    points at are leftovers and are removed when the list of the active
+    widgets is opened.
+    """
     widgets = [
         widget
         for widget in manage.find_defined_widgets(group_id)
@@ -609,5 +613,16 @@ def _get_merged_widget(group_id):
     if not widgets:
         return {}
 
-    widgets.sort(key=lambda widget: widget.get("updated", 0), reverse=True)
+    referenced = [
+        widget
+        for widget in widgets
+        if manage.is_widget_referenced(widget.get("id", ""))
+    ]
+    if referenced:
+        widgets = referenced
+
+    widgets.sort(
+        key=lambda widget: manage.widget_updated_at(widget.get("id", "")),
+        reverse=True,
+    )
     return widgets[0]

@@ -11,14 +11,9 @@ _userdata = "special://profile/"
 _skin_shortcuts = settings.get_addon_info("profile", addon="script.skinshortcuts")
 
 
-def clean(widget_id=None, notify=False, all=False):
-    if all:
-        for widget in find_defined_widgets():
-            clean(widget_id=widget["id"])
-        return find_defined_widgets()
-
+def widget_reference_files():
+    """The files that hold the ids of the widgets a skin points at."""
     files = []
-    dialog = xbmcgui.Dialog()
 
     params = {
         "jsonrpc": "2.0",
@@ -27,8 +22,8 @@ def clean(widget_id=None, notify=False, all=False):
         "params": {"type": "xbmc.gui.skin"},
     }
     addons = utils.call_jsonrpc(params)
-    if "error" not in addons:
-        for addon in addons["result"]["addons"]:
+    if "error" not in addons and "result" in addons:
+        for addon in addons["result"].get("addons", []):
             path = os.path.join(
                 settings.get_addon_info("profile", addon=addon["addonid"]),
                 "settings.xml",
@@ -41,6 +36,39 @@ def clean(widget_id=None, notify=False, all=False):
             if ext[-1] in ["xml", "properties"]:
                 path = os.path.join(_skin_shortcuts, xml)
                 files.append(path)
+
+    return files
+
+
+def is_widget_referenced(widget_id):
+    """True when a skin or a skin shortcut points at the widget.
+
+    Widgets that no skin points at are removed by :func:`clean`, they are
+    leftovers of a widget that was created in the add-on but never used.
+    """
+    if not widget_id:
+        return False
+
+    return any(widget_id in utils.read_file(file) for file in widget_reference_files())
+
+
+def widget_updated_at(widget_id):
+    """When the definition of a widget was written the last time."""
+    path = os.path.join(_addon_data, f"{widget_id}.widget")
+    try:
+        return os.path.getmtime(path)
+    except OSError:
+        return 0
+
+
+def clean(widget_id=None, notify=False, all=False):
+    if all:
+        for widget in find_defined_widgets():
+            clean(widget_id=widget["id"])
+        return find_defined_widgets()
+
+    files = widget_reference_files()
+    dialog = xbmcgui.Dialog()
 
     removed = 0
 
