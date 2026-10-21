@@ -1,3 +1,9 @@
+## [1.0.0-dev.7](https://github.com/rahaaatul/autowidget/compare/v1.0.0-dev.6...v1.0.0-dev.7) (2026-10-21)
+
+### 🐛 Bug Fixes
+
+* **edit:** change the paths of the merged widget the skin uses ([594f0b6](https://github.com/rahaaatul/autowidget/commit/594f0b658d509e05f7695209e8adec5f29796dbd))
+
 ## [1.0.0-dev.6](https://github.com/rahaaatul/autowidget/compare/v1.0.0-dev.5...v1.0.0-dev.6) (2026-10-21)
 
 ### 🐛 Bug Fixes
