@@ -118,6 +118,7 @@ class KodiMock:
         self.addon_info = {}
         self.jsonrpc_handler = None
         self.modules = {}
+        self.builtins = []
 
     # -- helpers --------------------------------------------------------
     def set_info_label(self, label, value):
@@ -181,7 +182,7 @@ class KodiMock:
             pass
 
         def executebuiltin(command, wait=False):
-            pass
+            mock.builtins.append(command)
 
         def executeJSONRPC(request):
             if isinstance(request, (str, bytes)):
