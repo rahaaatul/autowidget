@@ -1,0 +1,42 @@
+name: Build pull request
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Check add-on
+        run: python3 .github/scripts/check_addon.py
+
+      - name: Build
+        run: |
+          python3 .github/scripts/build_addon.py \
+            --version "0.0.${{ github.run_number }}" \
+            --output-dir dist
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin.program.autowidget
+          path: dist/*.zip
+          if-no-files-found: error

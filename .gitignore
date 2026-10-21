@@ -6,7 +6,9 @@
 /.project
 /.pydevproject
 /.settings
-scripts/
+/scripts/
+!/.github/scripts/
+!/.github/scripts/**
 Thumbs.db
 *~
 .cache
@@ -15,3 +17,5 @@ bin
 .vscode
 venv/
 /lib
+/dist/
+/build/

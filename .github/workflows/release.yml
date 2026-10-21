@@ -1,0 +1,180 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g. 3.9.0)'
+        required: true
+        type: string
+  publish:
+        description: 'Publish the add-on to the Kodi repository'
+        type: boolean
+        default: true
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Resolve version
+        id: version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          VERSION="${INPUT_VERSION:-${TAG_NAME#v}}"
+          if [ -z "$VERSION" ]; then
+            echo "No version could be determined" >&2
+            exit 1
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Check add-on
+        run: python3 .github/scripts/check_addon.py
+
+      - name: Build
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          python3 .github/scripts/build_addon.py \
+            --version "$VERSION" \
+            --output-dir dist
+
+      - name: Generate repository index
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          mkdir -p build
+          unzip -q "dist/plugin.program.autowidget-${VERSION}.zip" -d build
+          python3 .github/scripts/generate_repository.py \
+            --version "$VERSION" \
+            --addon-xml "build/plugin.program.autowidget/addon.xml" \
+            --output-dir "dist/zips"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin.program.autowidget-release
+          path: |
+            dist/*.zip
+            dist/zips/*
+          if-no-files-found: error
+
+  release:
+    name: Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: plugin.program.autowidget-release
+          path: dist
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ needs.build.outputs.version }}
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', needs.build.outputs.version) }}
+          prerelease: ${{ contains(needs.build.outputs.version, '-') }}
+          files: dist/*.zip
+          generate_release_notes: true
+
+      - name: Attest
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: 'AutoWidget ${{ needs.build.outputs.version }}'
+          subject-path: dist/plugin.program.autowidget-*.zip
+
+  backmerge:
+    name: Back-merge main to dev
+    needs: release
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Open back-merge pull request
+        uses: repo-sync/pull-request@v2
+        with:
+          source_branch: main
+          destination_branch: dev
+          pr_title: 'chore: Back-merge main to dev'
+          pr_body: |
+            This pull request back-merges `main` into `dev` after a release.
+          pr_draft: true
+
+  publish:
+    name: Publish to Kodi repository
+    needs: [build, release]
+    if: github.event_name == 'push' || inputs.publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: plugin.program.autowidget-release
+          path: dist
+
+      - name: Publish repository files
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git show-ref --verify --quiet refs/remotes/origin/repo; then
+            git checkout -B repo origin/repo
+          else
+            git checkout --orphan repo
+            git rm -rf --cached . > /dev/null 2>&1 || true
+          fi
+
+          rm -rf zips
+          mkdir -p zips
+          cp dist/*.zip zips/
+          cp dist/zips/addons.xml zips/
+          cp dist/zips/addons.xml.md5 zips/
+
+          git add -A zips
+          if git diff --cached --quiet; then
+            echo "Nothing to publish, repository files are already up to date"
+          else
+            git commit -m "chore: Release version ${VERSION}"
+            git push origin repo
+          fi
