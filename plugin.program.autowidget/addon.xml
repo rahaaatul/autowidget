@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.program.autowidget" name="AutoWidget" version="1.0.0~dev.4" provider-name="rahaaatul">
+<addon id="plugin.program.autowidget" name="AutoWidget" version="1.0.0~dev.5" provider-name="rahaaatul">
     <requires>
         <import addon="xbmc.python" version="3.0.1" />
         <import addon="script.module.pil" />
@@ -43,6 +43,10 @@
         <website>https://github.com/rahaaatul/</website>
         <source>https://github.com/rahaaatul/autowidget/</source>
         <news>
+1.0.0~dev.5
+🐛 Bug Fixes
+  - **menu:** merge all the paths of a group without asking ([c3c5096](https://github.com/rahaaatul/autowidget/commit/c3c5096a2a2c1e9a3fc446515a977ffec2a0442b))
+
 1.0.0~dev.4
 🐛 Bug Fixes
   - **edit:** resolve the widget paths by their id ([1a4f5ee](https://github.com/rahaaatul/autowidget/commit/1a4f5ee69b6bad1e722af353aa3437efbb69931e))

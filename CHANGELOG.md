@@ -1,3 +1,9 @@
+## [1.0.0-dev.5](https://github.com/rahaaatul/autowidget/compare/v1.0.0-dev.4...v1.0.0-dev.5) (2026-10-21)
+
+### 🐛 Bug Fixes
+
+* **menu:** merge all the paths of a group without asking ([c3c5096](https://github.com/rahaaatul/autowidget/commit/c3c5096a2a2c1e9a3fc446515a977ffec2a0442b))
+
 ## [1.0.0-dev.4](https://github.com/rahaaatul/autowidget/compare/v1.0.0-dev.3...v1.0.0-dev.4) (2026-10-21)
 
 ### 🐛 Bug Fixes
