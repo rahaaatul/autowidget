@@ -915,3 +915,38 @@ msgstr "Ανανέωση widgets κατά την αναπαραγωγή βίντ
 msgctxt "#30168"
 msgid "Paths"
 msgstr "Διαδρομές"
+
+#: /resources/settings.xml:11
+msgctxt "#30169"
+msgid "Sort Merged Widgets"
+msgstr "Ταξινόμηση συγχωνευμένων widget"
+
+#: /resources/settings.xml:11
+msgctxt "#30170"
+msgid "No sorting"
+msgstr "Χωρίς ταξινόμηση"
+
+#: /resources/settings.xml:11
+msgctxt "#30171"
+msgid "Date, newest first"
+msgstr "Ημερομηνία, πιο πρόσφατα πρώτα"
+
+#: /resources/settings.xml:11
+msgctxt "#30172"
+msgid "Date, oldest first"
+msgstr "Ημερομηνία, παλαιότερα πρώτα"
+
+#: /resources/settings.xml:11
+msgctxt "#30173"
+msgid "Rating, best first"
+msgstr "Βαθμολογία, καλύτερα πρώτα"
+
+#: /resources/settings.xml:11
+msgctxt "#30174"
+msgid "Title, A-Z"
+msgstr "Τίτλος, Α-Ζ"
+
+#: /resources/settings.xml:11
+msgctxt "#30175"
+msgid "Year, newest first"
+msgstr "Έτος, πιο πρόσφατα πρώτα"

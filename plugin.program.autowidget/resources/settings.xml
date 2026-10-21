@@ -8,6 +8,7 @@
         <setting label="$ADDON[plugin.program.autowidget 30081]" type="bool" id="widgets.paged" default="true" />
 		<setting label="$ADDON[plugin.program.autowidget 30114]" type="bool" id="widgets.hide_duplicates" default="true" />
 		<setting label="$ADDON[plugin.program.autowidget 30115]" subsetting="true" type="bool" id="widgets.prefer_episodes" default="true" enable="eq(-1,true)" />
+		<setting label="$ADDON[plugin.program.autowidget 30169]" type="enum" id="widgets.merged_sort" lvalues="30170|30171|30172|30173|30174|30175" default="0" />
         
         <!-- Path Service -->
         <setting label="$ADDON[plugin.program.autowidget 30001]" type="lsep" />

@@ -40,6 +40,10 @@ ones to use.  To merge only some of them, open the group in `Add-ons >
 AutoWidgets > My Groups`, open the context menu of the `{group} (Merged)`
 entry and choose `Paths`.
 
+The items of the merged paths are shown in one list.  The `Sort Merged
+Widgets` setting sorts that list by date, rating, title or year, without it
+the items are shown path by path.
+
 To add a whole folder of lists to a group at once, use `Add to AutoWidget Group > Explode menu to Group`.
 
 For a more detailed guide, check out [the wiki](https://github.com/drinfernoo/plugin.program.autowidget/wiki/How-to-Use-AutoWidget)!

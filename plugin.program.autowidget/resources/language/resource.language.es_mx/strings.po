@@ -910,3 +910,38 @@ msgstr "Actualizar widgets durante la reproducción de vídeo"
 msgctxt "#30168"
 msgid "Paths"
 msgstr "Rutas"
+
+#: /resources/settings.xml:11
+msgctxt "#30169"
+msgid "Sort Merged Widgets"
+msgstr "Ordenar los widgets combinados"
+
+#: /resources/settings.xml:11
+msgctxt "#30170"
+msgid "No sorting"
+msgstr "Sin ordenar"
+
+#: /resources/settings.xml:11
+msgctxt "#30171"
+msgid "Date, newest first"
+msgstr "Fecha, más recientes primero"
+
+#: /resources/settings.xml:11
+msgctxt "#30172"
+msgid "Date, oldest first"
+msgstr "Fecha, más antiguos primero"
+
+#: /resources/settings.xml:11
+msgctxt "#30173"
+msgid "Rating, best first"
+msgstr "Valoración, mejores primero"
+
+#: /resources/settings.xml:11
+msgctxt "#30174"
+msgid "Title, A-Z"
+msgstr "Título, A-Z"
+
+#: /resources/settings.xml:11
+msgctxt "#30175"
+msgid "Year, newest first"
+msgstr "Año, más recientes primero"
