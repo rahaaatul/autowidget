@@ -1,3 +1,9 @@
+## [1.0.1-dev.1](https://github.com/rahaaatul/autowidget/compare/v1.0.0...v1.0.1-dev.1) (2026-10-21)
+
+### Continuous Integration
+
+* **Needs bump:** release with semantic-release ([b26aa24](https://github.com/rahaaatul/autowidget/commit/b26aa24d944ce27da8d816708a3dad7826855f2b))
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
