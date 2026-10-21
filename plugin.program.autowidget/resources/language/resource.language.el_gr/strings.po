@@ -905,3 +905,13 @@ msgstr "Δημιουργία αντιγράφων ασφαλείας αρχεί�
 msgctxt "#30166"
 msgid "Backup complete."
 msgstr "Η λήψη αντιγράφου ασφαλείας ολοκληρώθηκε."
+
+#: /resources/settings.xml:18
+msgctxt "#30167"
+msgid "Refresh Widgets During Video Playback"
+msgstr "Ανανέωση widgets κατά την αναπαραγωγή βίντεο"
+
+#: /resources/lib/menu.py:194
+msgctxt "#30168"
+msgid "Paths"
+msgstr "Διαδρομές"

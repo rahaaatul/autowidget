@@ -1,5 +1,4 @@
 import pytest
-
 from resources.lib.common import directory
 
 

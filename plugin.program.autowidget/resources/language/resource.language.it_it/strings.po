@@ -907,3 +907,13 @@ msgstr "Backup dei file..."
 msgctxt "#30166"
 msgid "Backup complete."
 msgstr "Backup completato."
+
+#: /resources/settings.xml:18
+msgctxt "#30167"
+msgid "Refresh Widgets During Video Playback"
+msgstr "Aggiorna i widget durante la riproduzione video"
+
+#: /resources/lib/menu.py:194
+msgctxt "#30168"
+msgid "Paths"
+msgstr "Percorsi"

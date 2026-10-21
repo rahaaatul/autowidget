@@ -1,14 +1,10 @@
+import os
+from urllib.parse import parse_qsl
+
 import xbmcgui
 
-import os
-
-from urllib.parse import parse_qsl
-from urllib.parse import unquote
-
-from resources.lib import manage
-from resources.lib import refresh
-from resources.lib.common import settings
-from resources.lib.common import utils
+from resources.lib import manage, refresh
+from resources.lib.common import settings, utils
 
 _addon_data = settings.get_addon_info("profile")
 
@@ -69,16 +65,16 @@ def build_labels(source, path_def=None, target=""):
         }  # would be fun to set some "placeholder" art here
 
         for i in utils.get_info_keys() + ["DBType"]:
-            info = utils.get_infolabel("ListItem.{}".format(i.capitalize()))
+            info = utils.get_infolabel(f"ListItem.{i.capitalize()}")
             if info and not info.startswith("ListItem"):
                 path_def[i if i != "DBType" else "type"] = info
 
         for i in utils.art_types:
-            art = utils.get_infolabel("ListItem.Art({})".format(i))
+            art = utils.get_infolabel(f"ListItem.Art({i})")
             if art:
                 path_def["art"][i] = utils.clean_artwork_url(art)
         for i in ["icon", "thumb"]:
-            art = utils.clean_artwork_url(utils.get_infolabel("ListItem.{}".format(i)))
+            art = utils.clean_artwork_url(utils.get_infolabel(f"ListItem.{i}"))
             if art:
                 path_def["art"][i] = art
     elif source == "json" and path_def and target:
@@ -94,7 +90,7 @@ def build_labels(source, path_def=None, target=""):
     if path != "addons://user/":
         path = path.replace("addons://user/", "plugin://")
         path = path.replace("addons://dependencies/", "dependency://")
-    if "plugin://plugin.video.themoviedb.helper" in path and not "&widget=True" in path:
+    if "plugin://plugin.video.themoviedb.helper" in path and "&widget=True" not in path:
         path += "&widget=True"
     labels["file"]["file"] = path
 
@@ -202,7 +198,7 @@ def add_group(target, group_name=""):
 
     if group_name:
         group_id = utils.get_unique_id(group_name)
-        filename = os.path.join(_addon_data, "{}.group".format(group_id))
+        filename = os.path.join(_addon_data, f"{group_id}.group")
         group_def = {
             "label": group_name,
             "type": target,
@@ -211,7 +207,7 @@ def add_group(target, group_name=""):
             "art": folder_sync if target == "widget" else folder_shortcut,
             "version": settings.get_addon_info("version"),
             "content": "",
-            "sort_order": "{}".format(int(manage.highest_group_sort_order()) + 1),
+            "sort_order": f"{int(manage.highest_group_sort_order()) + 1}",
         }
 
         utils.write_json(filename, group_def)
@@ -267,7 +263,7 @@ def _add_path(group_def, labels, over=False):
 
 
 def _copy_path(path_def):
-    group_def = _group_dialog(path_def['target'])
+    group_def = _group_dialog(path_def["target"])
     if not group_def:
         return
 

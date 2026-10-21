@@ -1,14 +1,12 @@
+import io
+import os
+import zipfile
+
 import xbmc
 import xbmcgui
 import xbmcvfs
 
-import os
-import zipfile
-
-import io
-
-from resources.lib.common import settings
-from resources.lib.common import utils
+from resources.lib.common import settings, utils
 
 _addon_data = settings.get_addon_info("profile")
 _backup_location = settings.get_setting_string("backup.location")
@@ -103,12 +101,10 @@ def restore():
     )
 
     if backup.endswith(".zip"):
-
         content = io.BytesIO(xbmcvfs.File(backup).readBytes())
         with zipfile.ZipFile(content, "r") as z:
             info = z.infolist()
             choice_items = []
-            chosen = []
             for c in _choices:
                 for i in info:
                     if i.filename.endswith(c[0]):
@@ -147,7 +143,7 @@ def restore():
                 restore_progress.create(
                     utils.get_string(30069), utils.get_string(30162)
                 )
-                utils.call_builtin("Extract({},{})".format(backup, temp_path))
+                utils.call_builtin(f"Extract({backup},{temp_path})")
                 xbmc.sleep(1000)
 
                 for t in choices:
@@ -155,7 +151,7 @@ def restore():
                     restore_progress.update(
                         0,
                         utils.get_string(30163).format(
-                            ext if type(ext) != tuple else ', '.join(ext)
+                            ext if not isinstance(ext, tuple) else ", ".join(ext)
                         ),
                     )
                     files = [

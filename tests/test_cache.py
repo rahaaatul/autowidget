@@ -1,7 +1,6 @@
 import os
 
-from resources.lib.common import cache
-from resources.lib.common import utils
+from resources.lib.common import cache, utils
 
 PATH = "plugin://plugin.program.autowidget/?mode=x"
 
@@ -31,7 +30,7 @@ def test_widgets_for_path_tracks_the_widgets(monkeypatch, tmp_path):
     assert cache.widgets_for_path(PATH) == set()
 
     utils.write_json(
-        os.path.join(profile, "{}.history".format(cache.path2hash(PATH))),
+        os.path.join(profile, f"{cache.path2hash(PATH)}.history"),
         {"widgets": ["1", "2"]},
     )
     assert cache.widgets_for_path(PATH) == {"1", "2"}
@@ -45,7 +44,7 @@ def test_cache_expiry_writes_and_reads_back(monkeypatch, tmp_path):
     assert changed is True
     assert contents == payload
 
-    cache_path = os.path.join(profile, "{}.cache".format(cache.path2hash(PATH)))
+    cache_path = os.path.join(profile, f"{cache.path2hash(PATH)}.cache")
     assert utils.read_json(cache_path) == payload
 
     expiry, contents, changed = cache.cache_expiry(PATH, "1")
@@ -56,10 +55,12 @@ def test_cache_expiry_writes_and_reads_back(monkeypatch, tmp_path):
 def test_cache_expiry_does_not_cache_errors(monkeypatch, tmp_path):
     profile = _profile(monkeypatch, tmp_path)
 
-    expiry, contents, changed = cache.cache_expiry(PATH, "1", add={"error": {"code": -1}})
+    expiry, contents, changed = cache.cache_expiry(
+        PATH, "1", add={"error": {"code": -1}}
+    )
     assert contents is None
 
-    cache_path = os.path.join(profile, "{}.cache".format(cache.path2hash(PATH)))
+    cache_path = os.path.join(profile, f"{cache.path2hash(PATH)}.cache")
     assert not os.path.exists(cache_path)
 
 

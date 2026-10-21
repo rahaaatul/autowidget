@@ -91,6 +91,6 @@ def get_addon_info(label, addon=None):
         _addon = xbmcaddon.Addon() if not addon else xbmcaddon.Addon(addon)
         s = _addon.getAddonInfo(label)
         del _addon
-    except:
+    except Exception:
         pass
     return s
