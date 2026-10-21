@@ -20,7 +20,7 @@ widget_filter = {
     "include": ["action", "refresh", "path"],
     "exclude": ["stack", "version", "label", "current", "updated"],
 }
-color_tag = "\[\w+(?: \w+)*\](?:\[\w+(?: \w+)*\])?(\w+)(?:\[\/\w+\])?\[\/\w+\]"
+color_tag = r"\[\w+(?: \w+)*\](?:\[\w+(?: \w+)*\])?(\w+)(?:\[\/\w+\])?\[\/\w+\]"
 plus = utils.get_art("plus")
 
 
