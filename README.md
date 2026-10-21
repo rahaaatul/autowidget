@@ -17,13 +17,12 @@ Older releases are not supported. The add-on uses the Kodi Python 3 API (`xbmc.p
 
 ## Steps to Install
 ---
-1.  Go to the Kodi file manager.
-2.  Click on "Add source".
-3.  The path for the source is `https://github.com/rahaaatul/autowidget/raw/repo/` (Give it the name "rahaaatul").
-4.  Go to "Add-ons", and choose "Install from zip file".
-5.  Install `repository.autowidget-1.1.zip` from the source you just added.
-6.  Return to "Add-ons", and choose "Install from repository".
-7.  Choose the "AutoWidget Repository" you installed, and install AutoWidget from Program Add-ons.
+1.  Go to the [releases page](https://github.com/rahaaatul/autowidget/releases) and download the latest `plugin.program.autowidget-<version>.zip`.
+2.  In Kodi, go to "Add-ons" and choose "Install from zip file".
+3.  Select the downloaded `plugin.program.autowidget-<version>.zip`.
+4.  AutoWidget is then available in "Add-ons > Program add-ons".
+
+To follow the development versions, install a pre-release from the releases page; pre-releases are marked as such on GitHub.
 
 
 ## How to Use
@@ -61,29 +60,27 @@ python3 .github/scripts/check_addon.py
 # Build the installable add-on zip (the version is stamped into addon.xml)
 python3 .github/scripts/build_addon.py --version 1.0.0 --addon-path plugin.program.autowidget --output-dir dist
 
-# Build the repository add-on zip
-python3 .github/scripts/build_addon.py --version 1.1 --addon-path repository.autowidget --output-dir dist
-
-# Generate the Kodi repository (addons.xml, checksums, add-on folder)
-python3 .github/scripts/generate_repository.py --version 1.0.0 \
-    --addon-zip dist/plugin.program.autowidget-1.0.0.zip --output-dir dist/repository
+# Check the built zip
+python3 .github/scripts/check_addon.py --zip dist/plugin.program.autowidget-1.0.0.zip --version 1.0.0
 ```
 
-The version in `plugin.program.autowidget/addon.xml` is the version of the current release (`1.0.0`). The release workflow replaces it with the released version while packaging, so a released artifact always matches its tag.
+The version in `plugin.program.autowidget/addon.xml` is the version of the latest release. The release workflow builds the zip with the version of the release and commits the updated `addon.xml` back to the repository, so the source and the published artifact always match.
 
-The add-on follows the [Kodi add-on and repository layout](https://kodi.wiki/view/Add-on_repositories):
+## Releasing
+---
+Releases are created with [semantic-release](https://semantic-release.gitbook.io/), the same setup that is used for the upstream project. The version of a release and its changelog are derived from the commit messages, which follow the [Conventional Commits](https://www.conventionalcommits.org/) format:
 
-```
-zips/
-  addons.xml                  index of the add-ons in the repository
-  addons.xml.md5              checksum of addons.xml
-  plugin.program.autowidget/
-    plugin.program.autowidget-1.0.0.zip
-    plugin.program.autowidget-1.0.0.zip.md5
-    icon.png, fanart.png, ... assets of the add-on
-    changelog-1.0.0.txt
-repository.autowidget-1.1.zip  the repository add-on, installed by the user
-```
+| Commit | Release |
+| --- | --- |
+| `fix: ...` | patch, for example `1.0.1` |
+| `feat: ...` | minor, for example `1.1.0` |
+| `perf: ...` | patch |
+| `build: Needs bump` | patch |
+| `ci: ...`, `docs: ...`, `chore: ...` | no release |
+
+The release workflow runs on a push to `main`. To create a pre-release, run the `Release` workflow manually with the `dev` branch selected; the pre-releases are marked as such on GitHub and use the `~` notation Kodi expects, for example `1.1.0~dev.1`.
+
+Every release attaches the built add-on zip, updates `CHANGELOG.md` and the `news` section of `addon.xml` and attests the provenance of the artifact.
 
 ## Continuous Integration
 ---
@@ -92,10 +89,8 @@ Builds and releases are automated with GitHub Actions (`.github/workflows`):
 | Workflow | Trigger | Purpose |
 | --- | --- | --- |
 | `build_pull_request.yml` | push to `dev`, pull request to `dev` or `main` | Runs the test suite, validates the add-on, builds the zip and uploads it as a workflow artifact |
-| `release.yml` | tag `v*` push, manual run | Builds the add-on and the repository add-on, creates a GitHub release with the zips attached, attests the provenance, back-merges `main` into `dev` and publishes the Kodi repository to the `repo` branch |
+| `release.yml` | push to `main`, manual run | Runs the test suite and creates the release with semantic-release: changelog, version, tag, GitHub release with the add-on zip and the provenance attestation |
 | `open_pull_request.yml` | push to `dev` | Opens a draft pull request from `dev` to `main` |
-
-Releasing is done by pushing a tag, for example `git tag v1.0.0 && git push origin v1.0.0`. The workflow publishes the add-on zip, the repository add-on zip and the generated Kodi repository to the `repo` branch, which is the location the `repository.autowidget` add-on points at.
 
 The version line of this repository starts at `1.0.0`; the historic changelog of the upstream releases is kept in the `news` section of `addon.xml`.
 

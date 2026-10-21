@@ -21,24 +21,17 @@ import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
 
-VERSION_PLACEHOLDER = "CURRENT_VERSION"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from version import normalize_version  # noqa: E402
+
 EXCLUDED_DIR_NAMES = {"__pycache__", ".git", ".idea", ".vscode", ".pytest_cache"}
 EXCLUDED_SUFFIXES = {".pyc", ".pyo"}
-VERSION_PATTERN = re.compile(r"^[0-9]+(\.[0-9]+)*(~[0-9A-Za-z.\-]+)?$")
 
 
 def resolve_version(requested: str | None) -> str:
-    version = (requested or "").strip()
-    if version.startswith("v"):
-        version = version[1:]
-    if not version:
+    if not requested:
         raise SystemExit("A version is required to build an add-on")
-    version = version.replace("-", "~", 1)
-    if not VERSION_PATTERN.match(version):
-        raise SystemExit(
-            f"Invalid version {version!r}: Kodi expects a dotted version like 1.0.0"
-        )
-    return version
+    return normalize_version(requested)
 
 
 def read_addon_id(addon_xml: Path) -> str:

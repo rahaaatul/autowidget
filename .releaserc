@@ -1,0 +1,98 @@
+{
+  "branches": [
+    "main",
+    {
+      "name": "dev",
+      "prerelease": true
+    }
+  ],
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "releaseRules": [
+          {
+            "type": "fix",
+            "release": "patch"
+          },
+          {
+            "type": "feat",
+            "release": "minor"
+          },
+          {
+            "type": "perf",
+            "release": "patch"
+          },
+          {
+            "type": "build",
+            "scope": "Needs bump",
+            "release": "patch"
+          }
+        ]
+      }
+    ],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits",
+        "presetConfig": {
+          "types": [
+            {
+              "type": "feat",
+              "section": "New Features",
+              "hidden": false
+            },
+            {
+              "type": "fix",
+              "section": "Bug Fixes",
+              "hidden": false
+            },
+            {
+              "type": "perf",
+              "section": "Improvements",
+              "hidden": false
+            },
+            {
+              "type": "refactor",
+              "section": "Refactoring",
+              "hidden": false
+            },
+            {
+              "type": "build",
+              "hidden": false,
+              "section": "Continuous Integration"
+            }
+          ]
+        }
+      }
+    ],
+    "@semantic-release/changelog",
+    [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "python3 .github/scripts/build_addon.py --version ${nextRelease.version} --addon-path plugin.program.autowidget --output-dir dist && python3 .github/scripts/set_version.py --addon-xml plugin.program.autowidget/addon.xml --version ${nextRelease.version} --changelog CHANGELOG.md"
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": [
+          "CHANGELOG.md",
+          "plugin.program.autowidget/addon.xml"
+        ],
+        "message": "chore: Release v${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "assets": [
+          {
+            "path": "dist/plugin.program.autowidget-*.zip"
+          }
+        ],
+        "successComment": false
+      }
+    ]
+  ]
+}
