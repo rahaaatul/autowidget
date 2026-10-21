@@ -1,3 +1,12 @@
+## [1.0.0-dev.3](https://github.com/rahaaatul/autowidget/compare/v1.0.0-dev.2...v1.0.0-dev.3) (2026-10-21)
+
+### 🐛 Bug Fixes
+
+* **artwork:** publish local artwork as an absolute path ([b89fdfd](https://github.com/rahaaatul/autowidget/commit/b89fdfdd3eb52a7220fecf75b9775e69e2d740fe))
+* **player:** keep the playback type defined when a playback ends ([41c011e](https://github.com/rahaaatul/autowidget/commit/41c011e77e417bb404614891393da5368b165a6e))
+* **refresh:** refresh the widgets during playback when enabled ([caaefbc](https://github.com/rahaaatul/autowidget/commit/caaefbcfaa35199b378f932369680ed01f8867a3))
+* **refresh:** reload the AutoWidget container in a media window ([7f03a2e](https://github.com/rahaaatul/autowidget/commit/7f03a2ebcf98ad19ac57d98d7d88bfb439303067))
+
 ## [1.0.0-dev.2](https://github.com/rahaaatul/autowidget/compare/v1.0.0-dev.1...v1.0.0-dev.2) (2026-10-21)
 
 ### ✨ New Features
