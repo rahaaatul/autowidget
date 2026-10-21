@@ -175,6 +175,8 @@ def get_path_by_id(path_id, group_id=None):
         if defined.get("id", "") == path_id:
             return defined
 
+    return {}
+
 
 def get_widget_by_id(widget_id, group_id=None):
     if not widget_id:

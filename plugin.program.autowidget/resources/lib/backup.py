@@ -5,7 +5,7 @@ import xbmcvfs
 import os
 import zipfile
 
-import six
+import io
 
 from resources.lib.common import settings
 from resources.lib.common import utils
@@ -75,12 +75,12 @@ def backup():
         path = os.path.join(
             _backup_location, "{}.zip".format(filename.replace(".zip", ""))
         )
-        content = six.BytesIO()
+        content = io.BytesIO()
         with zipfile.ZipFile(content, "w", zipfile.ZIP_DEFLATED) as z:
             for idx, file in enumerate(files):
                 backup_dialog.update(int(idx / len(files) * 100))
                 with xbmcvfs.File(os.path.join(_addon_data, file)) as f:
-                    z.writestr(file, six.ensure_text(f.read()))
+                    z.writestr(file, utils.to_text(f.read()))
 
         backup_dialog.close()
         del backup_dialog
@@ -104,7 +104,7 @@ def restore():
 
     if backup.endswith(".zip"):
 
-        content = six.BytesIO(xbmcvfs.File(backup).readBytes())
+        content = io.BytesIO(xbmcvfs.File(backup).readBytes())
         with zipfile.ZipFile(content, "r") as z:
             info = z.infolist()
             choice_items = []

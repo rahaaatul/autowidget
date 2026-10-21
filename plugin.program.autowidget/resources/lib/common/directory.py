@@ -3,15 +3,10 @@ import xbmcplugin
 
 import sys
 
-import six
-
 from resources.lib.common import settings
 from resources.lib.common import utils
 
-try:
-    from urllib.parse import urlencode
-except ImportError:
-    from urllib import urlencode
+from urllib.parse import urlencode
 
 _sort_methods = [
     xbmcplugin.SORT_METHOD_UNSORTED,
@@ -100,6 +95,43 @@ def add_sort_methods(handle):
         xbmcplugin.addSortMethod(handle, method)
 
 
+def parse_duration(value):
+    """Convert a duration to the number of seconds Kodi expects.
+
+    Accepts a number of seconds or a "[HH:]MM:SS" string as used by
+    some plugins. Returns None when the value can't be parsed.
+    """
+    if isinstance(value, (int, float)):
+        return int(value)
+
+    if not isinstance(value, str):
+        return None
+
+    value = value.strip()
+
+    if not value:
+        return None
+
+    if ":" not in value:
+        try:
+            return int(value)
+        except ValueError:
+            return None
+
+    parts = value.split(":")
+    if len(parts) > 3:
+        return None
+
+    try:
+        seconds = 0
+        for part in parts:
+            seconds = seconds * 60 + int(part)
+    except ValueError:
+        return None
+
+    return seconds
+
+
 def add_menu_item(
     title="",
     params=None,
@@ -120,7 +152,7 @@ def add_menu_item(
 
         for param in _exclude_params:
             _plugin += "&{}={}".format(param, params.get(param, ""))
-    elif path is not None and isinstance(path, six.text_type):
+    elif path is not None and isinstance(path, str):
         _plugin = path
 
     if isinstance(title, int):
@@ -139,7 +171,7 @@ def add_menu_item(
                 if key in ["cast", "castandrole"]:
                     item.setCast(value)
                 else:
-                    new_value = [six.text_type(i) for i in value]
+                    new_value = [str(i) for i in value]
             elif isinstance(value, dict):
                 if key == "resume":
                     pos = value.get("position", 0)
@@ -147,8 +179,8 @@ def add_menu_item(
                     if pos > 0 and pos < total:
                         if props is None:
                             props = {}
-                        props["ResumeTime"] = six.text_type(pos)
-                        props["TotalTime"] = six.text_type(total)
+                        props["ResumeTime"] = str(pos)
+                        props["TotalTime"] = str(total)
                 elif key == "art":
                     if art is None:
                         art = value
@@ -186,11 +218,15 @@ def add_menu_item(
                     item.setMimeType(value)
                 elif key == "artist":
                     new_value = [value]
+                elif key == "duration":
+                    # Kodi wants the duration in seconds, some plugins
+                    # return it as a "[HH:]MM:SS" string instead.
+                    new_value = parse_duration(value)
                 else:
                     new_value = (
                         value
                         if isinstance(value, (int, float))
-                        else six.text_type(value)
+                        else str(value)
                     )
             if new_value is not None:
                 valid_keys = _translations.get(info_types.get(mediatype, ""), {})
@@ -204,7 +240,7 @@ def add_menu_item(
 
     if props is not None and isinstance(props, dict):
         for prop in props:
-            item.setProperty(prop, six.text_type(props[prop]))
+            item.setProperty(prop, str(props[prop]))
 
     if art is not None and isinstance(art, dict):
         if info:

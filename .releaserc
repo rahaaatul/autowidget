@@ -1,0 +1,103 @@
+{
+  "branches": [
+    "main",
+    {
+      "name": "dev",
+      "prerelease": true
+    }
+  ],
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "releaseRules": [
+          {
+            "type": "fix",
+            "release": "patch"
+          },
+          {
+            "type": "feat",
+            "release": "minor"
+          },
+          {
+            "type": "perf",
+            "release": "patch"
+          },
+          {
+            "type": "build",
+            "scope": "Needs bump",
+            "release": "patch"
+          }
+        ]
+      }
+    ],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits",
+        "presetConfig": {
+          "types": [
+            {
+              "type": "feat",
+              "section": "\u2728 New Features",
+              "hidden": false
+            },
+            {
+              "type": "fix",
+              "section": "\ud83d\udc1b Bug Fixes",
+              "hidden": false
+            },
+            {
+              "type": "perf",
+              "section": "\ud83d\udd27 Improvements",
+              "hidden": false
+            },
+            {
+              "type": "refactor",
+              "section": "\u267b\ufe0f Refactoring",
+              "hidden": false
+            },
+            {
+              "type": "build",
+              "hidden": false,
+              "section": "\ud83d\ude80 Continuous Integration"
+            },
+            {
+              "type": "ci",
+              "section": "\ud83d\ude80 Continuous Integration",
+              "hidden": false
+            }
+          ]
+        }
+      }
+    ],
+    "@semantic-release/changelog",
+    [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "python3 .github/scripts/build_addon.py --version ${nextRelease.version} --zip-version ${nextRelease.version} --addon-path plugin.program.autowidget --output-dir dist && python3 .github/scripts/set_version.py --addon-xml plugin.program.autowidget/addon.xml --version ${nextRelease.version} --changelog CHANGELOG.md"
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": [
+          "CHANGELOG.md",
+          "plugin.program.autowidget/addon.xml"
+        ],
+        "message": "chore: Release v${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "assets": [
+          {
+            "path": "dist/plugin.program.autowidget-*.zip"
+          }
+        ],
+        "successComment": false
+      }
+    ]
+  ]
+}

@@ -236,7 +236,7 @@ msgstr "[COLOR firebrick] [B] Continua[/B][/COLOR]"
 #: /resources/lib/edit.py:142
 msgctxt "#30040"
 msgid "[COLOR lawngreen][B]Disable[/B][/COLOR]"
-msgstr "[COLOR verde prato] [B] Disattiva[/B][/COLOR]"
+msgstr "[COLOR lawngreen] [B] Disattiva[/B][/COLOR]"
 
 #: /resources/lib/edit.py:168 /resources/lib/menu.py:594
 msgctxt "#30041"

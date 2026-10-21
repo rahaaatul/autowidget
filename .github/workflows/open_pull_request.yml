@@ -1,0 +1,67 @@
+name: Open a PR to main
+
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+
+env:
+  MESSAGE: Merge branch `${{ github.head_ref || github.ref_name }}` to `main`
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: open-pr-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pull-request:
+    name: Open pull request
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for differences
+        id: diff
+        run: |
+          set -euo pipefail
+          git fetch --quiet origin main dev
+          if [ -z "$(git log --oneline origin/main..origin/dev)" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "main and dev contain the same commits, no pull request is needed"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open pull request
+        id: pull-request
+        if: steps.diff.outputs.changed == 'true'
+        continue-on-error: true
+        uses: repo-sync/pull-request@v2
+        with:
+          source_branch: ${{ github.ref_name }}
+          destination_branch: main
+          pr_title: 'chore: ${{ env.MESSAGE }}'
+          pr_body: |
+            This pull request will ${{ env.MESSAGE }}.
+
+            ## Before merging this PR
+
+            - [ ] Pull & merge translations
+            - [ ] Update the changelog in `addon.xml`
+          pr_draft: true
+
+      - name: Report the result
+        if: steps.diff.outputs.changed == 'true' && steps.pull-request.outcome == 'failure'
+        run: |
+          echo "::warning::The pull request could not be created. Enable 'Allow GitHub" \
+            "Actions to create and approve pull requests' in the repository settings" \
+            "(Settings > Actions > General > Workflow permissions) or store a personal" \
+            "access token in the PR_TOKEN secret."

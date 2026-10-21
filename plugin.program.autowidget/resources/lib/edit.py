@@ -3,8 +3,6 @@ import xbmcgui
 import os
 import re
 
-import six
-
 from resources.lib import manage
 from resources.lib.common import settings
 from resources.lib.common import utils
@@ -22,7 +20,7 @@ widget_filter = {
     "include": ["action", "refresh", "path"],
     "exclude": ["stack", "version", "label", "current", "updated"],
 }
-color_tag = "\[\w+(?: \w+)*\](?:\[\w+(?: \w+)*\])?(\w+)(?:\[\/\w+\])?\[\/\w+\]"
+color_tag = r"\[\w+(?: \w+)*\](?:\[\w+(?: \w+)*\])?(\w+)(?:\[\/\w+\])?\[\/\w+\]"
 plus = utils.get_art("plus")
 
 
@@ -97,7 +95,7 @@ def _remove_group(group_id, over=False):
         file = os.path.join(_addon_data, "{}.group".format(group_id))
         utils.remove_file(file)
         dialog.notification(
-            "AutoWidget", utils.get_string(30029).format(six.text_type(group_name))
+            "AutoWidget", utils.get_string(30029).format(str(group_name))
         )
     del dialog
 
@@ -116,13 +114,13 @@ def _remove_path(path_id, group_id, over=False):
                 group_def["paths"].remove(path_def)
                 dialog.notification(
                     "AutoWidget",
-                    utils.get_string(30029).format(six.text_type(path_name)),
+                    utils.get_string(30029).format(str(path_name)),
                 )
         manage.write_path(group_def)
     del dialog
 
 
-def remove_widget(widget_id, over=False):
+def _remove_widget(widget_id, over=False):
     dialog = xbmcgui.Dialog()
     if not over:
         choice = dialog.yesno("AutoWidget", utils.get_string(30024))
@@ -154,7 +152,7 @@ def _show_options(group_def, path_def=None, type=""):
     edit_def = path_def if path_def else group_def
     options = _get_options(edit_def)
     remove_label = utils.get_string(30013) if path_def else utils.get_string(30012)
-    options.append(u"[COLOR firebrick]{}[/COLOR]".format(six.ensure_text(remove_label)))
+    options.append(u"[COLOR firebrick]{}[/COLOR]".format(utils.to_text(remove_label)))
     if not type:
         target = path_def["target"] if path_def else group_def["type"]
         if target not in ["shortcut", "widget", "settings"]:
@@ -199,7 +197,7 @@ def _show_widget_options(edit_def):
     if idx < 0:
         return
     elif idx == len(options) - 1:
-        remove_widget(edit_def["id"])
+        _remove_widget(edit_def["id"])
         utils.update_container()
         return
     else:
@@ -502,7 +500,7 @@ def _get_widget_value(edit_def, key):
     else:
         default = edit_def.get(key)
         value = dialog.input(
-            utils.get_string(30094).format(key), defaultt=six.text_type(default)
+            utils.get_string(30094).format(key), defaultt=str(default)
         )
 
     del dialog

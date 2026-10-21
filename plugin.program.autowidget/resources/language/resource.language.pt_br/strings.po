@@ -128,9 +128,7 @@ msgctxt "#30021"
 msgid ""
 "Are you sure you want to remove this path? This action [COLOR "
 "firebrick][B]cannot[/B][/COLOR] be undone."
-msgstr ""
-"Tem certeza de que deseja remover este caminho? Esta ação [tijolo refratário"
-" COLOR] [B] não pode [/ B] [/ COLOR] ser desfeita."
+msgstr "Tem certeza de que deseja remover este caminho? Esta ação [COLOR firebrick] [B] não pode [/B] [/COLOR] ser desfeita."
 
 #: /resources/lib/add.py:200
 msgctxt "#30022"
@@ -147,9 +145,7 @@ msgctxt "#30024"
 msgid ""
 "Are you sure you want to remove this group? This action [COLOR "
 "firebrick][B]cannot[/B][/COLOR] be undone."
-msgstr ""
-"Tem certeza que deseja remover este grupo? Esta ação [tijolo refratário "
-"COLOR] [B] não pode [/ B] [/ COLOR] ser desfeita."
+msgstr "Tem certeza que deseja remover este grupo? Esta ação [COLOR firebrick] [B] não pode [/B] [/COLOR] ser desfeita."
 
 #: /resources/settings.xml:13
 msgctxt "#30025"
@@ -223,20 +219,17 @@ msgid ""
 "Changing of any of the advanced options may cause paths to [COLOR "
 "firebrick]no longer[/COLOR] function correctly. This message will only be "
 "shown once."
-msgstr ""
-"A alteração de qualquer uma das opções avançadas pode fazer com que os "
-"caminhos para [COLOR firebrick] não funcionem mais corretamente. Esta "
-"mensagem será exibida apenas uma vez."
+msgstr "A alteração de qualquer uma das opções avançadas pode fazer com que os caminhos para [COLOR firebrick] não funcionem mais corretamente[/COLOR]. Esta mensagem será exibida apenas uma vez."
 
 #: /resources/lib/edit.py:141
 msgctxt "#30039"
 msgid "[COLOR firebrick][B]Continue[/B][/COLOR]"
-msgstr "[COLOR firebrick] [B] Continue [/ B] [/ COLOR]"
+msgstr "[COLOR firebrick] [B] Continue [/B] [/COLOR]"
 
 #: /resources/lib/edit.py:142
 msgctxt "#30040"
 msgid "[COLOR lawngreen][B]Disable[/B][/COLOR]"
-msgstr "[COLOR Lawngreen] [B] Desativar [/ B] [/ COLOR]"
+msgstr "[COLOR lawngreen] [B] Desativar [/B] [/COLOR]"
 
 #: /resources/lib/edit.py:168 /resources/lib/menu.py:594
 msgctxt "#30041"
@@ -541,10 +534,7 @@ msgid ""
 "Do you want to clear or keep the current {}?\n"
 "\n"
 "[B]{}[/B]: {}"
-msgstr ""
-"Você deseja limpar ou manter o {} atual?\n"
-"\n"
-" [B] {} [/ B]: {}"
+msgstr "Você deseja limpar ou manter o {} atual?\\n\\n [B] {} [/B]: {}"
 
 #: /resources/lib/edit.py:430
 msgctxt "#30097"

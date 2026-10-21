@@ -231,12 +231,12 @@ msgstr ""
 #: /resources/lib/edit.py:141
 msgctxt "#30039"
 msgid "[COLOR firebrick][B]Continue[/B][/COLOR]"
-msgstr "[COLOR Firebrick] [B] Weiter[/B][/COLOR]"
+msgstr "[COLOR firebrick] [B] Weiter[/B][/COLOR]"
 
 #: /resources/lib/edit.py:142
 msgctxt "#30040"
 msgid "[COLOR lawngreen][B]Disable[/B][/COLOR]"
-msgstr "[COLOR Rasengrün] [B] Deaktivieren[/B][/COLOR]"
+msgstr "[COLOR lawngreen] [B] Deaktivieren[/B][/COLOR]"
 
 #: /resources/lib/edit.py:168 /resources/lib/menu.py:594
 msgctxt "#30041"
@@ -546,10 +546,7 @@ msgid ""
 "Do you want to clear or keep the current {}?\n"
 "\n"
 "[B]{}[/B]: {}"
-msgstr ""
-"Möchten Sie den aktuellen Wert löschen oder beibehalten?\n"
-"\n"
-"[B] [/B]:"
+msgstr "Möchten Sie den aktuellen Wert löschen oder beibehalten?\\n\\n[B]{}[/B]: {}"
 
 #: /resources/lib/edit.py:430
 msgctxt "#30097"

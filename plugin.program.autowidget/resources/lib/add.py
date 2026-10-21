@@ -2,12 +2,8 @@ import xbmcgui
 
 import os
 
-try:
-    from urllib.parse import parse_qsl
-    from urllib.parse import unquote
-except ImportError:
-    from urlparse import parse_qsl
-    from urllib import unquote
+from urllib.parse import parse_qsl
+from urllib.parse import unquote
 
 from resources.lib import manage
 from resources.lib import refresh
