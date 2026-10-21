@@ -915,8 +915,3 @@ msgstr "Ανανέωση widgets κατά την αναπαραγωγή βίντ
 msgctxt "#30168"
 msgid "Paths"
 msgstr "Διαδρομές"
-
-#: /resources/lib/menu.py:194
-msgctxt "#30169"
-msgid "{} (Merged)"
-msgstr "{} (Συγχωνευμένα)"

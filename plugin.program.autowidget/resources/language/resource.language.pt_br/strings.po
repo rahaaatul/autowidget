@@ -902,8 +902,3 @@ msgstr "Atualizar widgets durante a reprodução de vídeo"
 msgctxt "#30168"
 msgid "Paths"
 msgstr "Caminhos"
-
-#: /resources/lib/menu.py:194
-msgctxt "#30169"
-msgid "{} (Merged)"
-msgstr "{} (Combinados)"

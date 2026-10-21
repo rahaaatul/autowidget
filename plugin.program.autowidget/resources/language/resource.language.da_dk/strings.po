@@ -913,8 +913,3 @@ msgstr "Opdater widgets under videoafspilning"
 msgctxt "#30168"
 msgid "Paths"
 msgstr "Stier"
-
-#: /resources/lib/menu.py:194
-msgctxt "#30169"
-msgid "{} (Merged)"
-msgstr "{} (Flet)"

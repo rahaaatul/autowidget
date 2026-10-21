@@ -36,8 +36,9 @@ A group can hold more than one list ("path"). In your skin, point a widget at `A
 * **Merged** combines all paths of the group into a single list.
 
 A merged widget uses all the paths of its group, the add-on never asks which
-ones to use.  To merge only some of them, open the widget in `Add-ons >
-AutoWidgets > Active Widgets`, open its context menu and choose `Paths`.
+ones to use.  To merge only some of them, open the group in `Add-ons >
+AutoWidgets > My Groups`, open the context menu of the `{group} (Merged)`
+entry and choose `Paths`.
 
 To add a whole folder of lists to a group at once, use `Add to AutoWidget Group > Explode menu to Group`.
 

@@ -168,7 +168,7 @@ def active_widgets_menu():
             if action == "merged":
                 # A merged widget merges the paths of its group, it has no
                 # path of its own to show.
-                title = utils.get_string(30169).format(
+                title = utils.get_string(30065).format(
                     utils.to_text(group_def.get("label", ""))
                 )
             elif path_def and group_def:
@@ -204,18 +204,6 @@ def active_widgets_menu():
                     )
                 elif action == "merged":
                     art = merge
-                    cm.append(
-                        (
-                            utils.get_string(30168),
-                            (
-                                "RunPlugin("
-                                "plugin://plugin.program.autowidget/"
-                                "?mode=manage"
-                                "&action=edit_merged"
-                                f"&id={widget_id})"
-                            ),
-                        )
-                    )
                 elif action == "static":
                     art = utils.get_art("folder")
 
@@ -762,6 +750,18 @@ def _create_action_items(group_def, _id):
             art=utils.get_art("merge"),
             isFolder=True,
             props=props,
+            cm=[
+                (
+                    utils.get_string(30168),
+                    (
+                        "RunPlugin("
+                        "plugin://plugin.program.autowidget/"
+                        "?mode=manage"
+                        "&action=edit_merged"
+                        f"&group={group_id})"
+                    ),
+                )
+            ],
         )
 
 

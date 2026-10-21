@@ -909,8 +909,3 @@ msgstr "Refresh Widgets During Video Playback"
 msgctxt "#30168"
 msgid "Paths"
 msgstr "Paths"
-
-#: /resources/lib/menu.py:194
-msgctxt "#30169"
-msgid "{} (Merged)"
-msgstr "{} (Merged)"

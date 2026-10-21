@@ -564,22 +564,22 @@ def edit_widget_dialog(widget_id):
         edit_widget_dialog(widget_id)
 
 
-def edit_merged_widget(widget_id):
-    """Change the paths a merged widget merges.
+def edit_merged_widget(group_id):
+    """Change the paths the merged widget of a group merges.
 
-    Only the paths of this widget are changed, the other widgets of the
+    Only the paths of that widget are changed, the other widgets of the
     group keep the paths they have.
     """
-    widget_def = manage.get_widget_by_id(widget_id)
-    if not widget_def:
-        return
-
-    group_def = manage.get_group_by_id(widget_def.get("group", ""))
+    group_def = manage.get_group_by_id(group_id)
     if not group_def:
         return
 
     paths = group_def.get("paths", [])
     if not paths:
+        return
+
+    widget_def = _get_merged_widget(group_id)
+    if not widget_def:
         return
 
     current = widget_def.get("path", [])
@@ -597,3 +597,17 @@ def edit_merged_widget(widget_id):
     widget_def["path"] = [paths[idx]["id"] for idx in idxs]
     manage.save_path_details(widget_def)
     utils.update_container(True)
+
+
+def _get_merged_widget(group_id):
+    """The merged widget of a group, the most recent one when there are more."""
+    widgets = [
+        widget
+        for widget in manage.find_defined_widgets(group_id)
+        if widget.get("action") == "merged"
+    ]
+    if not widgets:
+        return {}
+
+    widgets.sort(key=lambda widget: widget.get("updated", 0), reverse=True)
+    return widgets[0]

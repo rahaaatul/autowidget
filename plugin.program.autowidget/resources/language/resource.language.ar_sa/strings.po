@@ -900,8 +900,3 @@ msgstr "تحديث الأدوات أثناء تشغيل الفيديو"
 msgctxt "#30168"
 msgid "Paths"
 msgstr "المسارات"
-
-#: /resources/lib/menu.py:194
-msgctxt "#30169"
-msgid "{} (Merged)"
-msgstr "{} (مدمج)"
