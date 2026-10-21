@@ -313,6 +313,10 @@ def show_path(
 
     color = widget_path.get("color", default_color)
 
+    # Inside a skin widget the management actions of the add-on are not
+    # useful, they only clutter the context menu of every item.
+    widget_mode = utils.is_widget_mode()
+
     if stack:
         title = _previous
         # title = utils.get_string(30084).format(len(stack))
@@ -331,12 +335,15 @@ def show_path(
         )
 
     for pos, file in enumerate(files):
-        properties = {
-            "autoLabel": path_label,
-            "autoID": widget_id,
-            "autoAction": action,
-            "autoCache": hash,
-        }
+        properties = {"autoLabel": path_label}
+        if not widget_mode:
+            properties.update(
+                {
+                    "autoID": widget_id,
+                    "autoAction": action,
+                    "autoCache": hash,
+                }
+            )
         next_item = False
         prev_item = False
         is_folder = file["filetype"] == "directory"
@@ -485,34 +492,44 @@ def path_menu(group_id, action, widget_id):
 
     widget_def = manage.get_widget_by_id(widget_id, group_id)
     if not widget_def:
-        dialog = xbmcgui.Dialog()
-        if action == "static":
-            idx = manage.choose_paths(
-                utils.get_string(30087), paths, indices=True, single=True
-            )
-            if idx == -1:
-                return True, "AutoWidget", None
-
-            widget_def = manage.initialize(group_def, action, widget_id, keep=idx)
-        elif action == "cycling":
-            idx = dialog.select(
-                utils.get_string(30058),
-                [utils.get_string(30056), utils.get_string(30057)],
-            )
-            if idx == -1:
-                del dialog
-                return True, "AutoWidget", None
-
-            _action = "random" if idx == 0 else "next"
-
-            cycle_paths = manage.choose_paths(
-                utils.get_string(30122), paths, threshold=-1, indices=True
-            )
-
+        if utils.is_widget_mode():
+            # A dialog on top of a skin widget is intrusive, the first path
+            # of the group is used instead.
             widget_def = manage.initialize(
-                group_def, _action, widget_id, keep=cycle_paths
+                group_def,
+                "static" if action == "static" else "next",
+                widget_id,
+                keep=0 if action == "static" else [0],
             )
-        del dialog
+        else:
+            dialog = xbmcgui.Dialog()
+            if action == "static":
+                idx = manage.choose_paths(
+                    utils.get_string(30087), paths, indices=True, single=True
+                )
+                if idx == -1:
+                    return True, "AutoWidget", None
+
+                widget_def = manage.initialize(group_def, action, widget_id, keep=idx)
+            elif action == "cycling":
+                idx = dialog.select(
+                    utils.get_string(30058),
+                    [utils.get_string(30056), utils.get_string(30057)],
+                )
+                if idx == -1:
+                    del dialog
+                    return True, "AutoWidget", None
+
+                _action = "random" if idx == 0 else "next"
+
+                cycle_paths = manage.choose_paths(
+                    utils.get_string(30122), paths, threshold=-1, indices=True
+                )
+
+                widget_def = manage.initialize(
+                    group_def, _action, widget_id, keep=cycle_paths
+                )
+            del dialog
 
     if widget_def:
         widget_path = widget_def.get("path", "")
@@ -551,14 +568,22 @@ def merged_path(group_id, widget_id):
     if widget_def and _window != "dialog":
         paths = widget_def["path"]
     elif not widget_def:
-        idxs = manage.choose_paths(utils.get_string(30088), paths, 5)
+        if utils.is_widget_mode():
+            # A dialog on top of a skin widget is intrusive, all the paths
+            # of the group are merged instead.
+            widget_def = manage.initialize(
+                group_def, "merged", widget_id, keep=list(range(len(paths)))
+            )
+            paths = widget_def["path"]
+        else:
+            idxs = manage.choose_paths(utils.get_string(30088), paths, 5)
 
-        if idxs is not None:
-            if len(idxs) > 0:
-                widget_def = manage.initialize(
-                    group_def, "merged", widget_id, keep=idxs
-                )
-                paths = widget_def["path"]
+            if idxs is not None:
+                if len(idxs) > 0:
+                    widget_def = manage.initialize(
+                        group_def, "merged", widget_id, keep=idxs
+                    )
+                    paths = widget_def["path"]
 
     if widget_def:
         titles = []

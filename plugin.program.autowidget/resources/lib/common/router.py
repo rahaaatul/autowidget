@@ -42,6 +42,11 @@ def dispatch(_handle, _params):
     target = params.get("target", "")
     widget_id = params.get("id", "")
 
+    # A skin widget renders the list inside a small box on the home screen.
+    # The add-on is told about it with 'widget=true' in the plugin url, when
+    # the parameter is missing the context is detected automatically.
+    utils.set_widget_mode_from_params(params)
+
     if not mode:
         is_dir, category, is_type = menu.root_menu()
     elif mode == "manage":

@@ -123,6 +123,9 @@ class KodiMock(object):
     def set_info_label(self, label, value):
         self.info_labels[label] = value
 
+    def set_cond_visibility(self, condition, value=True):
+        self.conditions[condition] = value
+
     def set_jsonrpc_handler(self, handler):
         """handler(request_dict) -> response dict (or str)"""
         self.jsonrpc_handler = handler

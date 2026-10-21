@@ -32,6 +32,9 @@ _addon_root = translatePath(settings.get_addon_info("path"))
 _art_path = os.path.join(_addon_root, "resources", "media")
 _home = translatePath("special://home/")
 
+# None means "not specified", the context is then detected automatically.
+_widget_mode = None
+
 windows = {
     "programs": ["program", "script"],
     "addonbrowser": ["addon", "addons"],
@@ -345,6 +348,65 @@ def set_color(setting=False):
 
     del dialog
     return value
+
+
+def set_widget_mode(enabled):
+    """Remember whether the add-on renders inside a skin widget.
+
+    ``None`` (the default) means "not specified", in which case the context
+    is detected automatically, see :func:`is_widget_mode`.
+    """
+    global _widget_mode
+    _widget_mode = enabled
+
+
+def set_widget_mode_from_params(params):
+    """Configure the widget mode from the parameters of the plugin url.
+
+    A skin widget is requested with ``widget=true`` in the url.  When the
+    parameter is missing the context is detected automatically.
+    """
+    widget = params.get("widget", "")
+    if widget:
+        set_widget_mode(str(widget).lower() in ["true", "1", "yes", "on"])
+
+
+def is_skin_shortcut():
+    """True when the add-on is rendered by the Skin Shortcuts add-on.
+
+    The Skin Shortcuts add-on keeps its own window open while the user picks
+    the content of a shortcut, which is how we recognise that we are being
+    rendered as a widget.  A skin can also opt in by setting the
+    ``AutoWidget.WidgetMode`` property on the home window.
+    """
+    try:
+        if xbmc.getCondVisibility("Window.IsVisible(script-skinshortcuts.xml)"):
+            return True
+    except Exception:
+        pass
+
+    try:
+        if get_infolabel("Window(Home).Property(AutoWidget.WidgetMode)"):
+            return True
+    except Exception:
+        pass
+
+    return False
+
+
+def is_widget_mode():
+    """True when the current listing is rendered inside a skin widget.
+
+    A widget is a small list on the home screen of a skin.  The add-on
+    behaves differently there: the management actions are not useful and
+    dialogs are intrusive.  Widgets are requested with ``widget=true`` in the
+    plugin url, or detected automatically when the Skin Shortcuts add-on is
+    rendering the list.
+    """
+    if _widget_mode is not None:
+        return _widget_mode
+
+    return is_skin_shortcut()
 
 
 def get_active_window():
