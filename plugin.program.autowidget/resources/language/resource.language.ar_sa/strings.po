@@ -890,3 +890,8 @@ msgstr "جاري النسخ الاحتياطي للمفات..."
 msgctxt "#30166"
 msgid "Backup complete."
 msgstr "اكتمال النسخ الاحتياطي."
+
+#: /resources/settings.xml:18
+msgctxt "#30167"
+msgid "Refresh Widgets During Video Playback"
+msgstr "تحديث الأدوات أثناء تشغيل الفيديو"

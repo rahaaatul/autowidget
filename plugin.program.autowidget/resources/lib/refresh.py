@@ -66,6 +66,9 @@ class RefreshService(xbmc.Monitor):
             "service.refresh_notification"
         )
         self.refresh_sound = settings.get_setting_bool("service.refresh_sound")
+        self.refresh_during_playback = settings.get_setting_bool(
+            "service.refresh_during_playback"
+        )
 
         utils.update_container(True)
 
@@ -109,13 +112,23 @@ class RefreshService(xbmc.Monitor):
             self.queue.put(tuple(data))
             return True
 
+    def _skip_for_playback(self):
+        """True while the queue has to wait for the playback to end.
+
+        Refreshing during playback is opt-in, because it makes Kodi fetch
+        content while the user is watching something. When it is disabled the
+        widgets keep showing the "Loading content..." placeholder until the
+        playback has finished.
+        """
+        return self.player.isPlayingVideo() and not self.refresh_during_playback
+
     def _processQueue(self):
         if self.low_end:
             self.waitForAbort(70)  # TODO: wait until no more added to queue?
         utils.log("Starting processing queue", "notice")
 
         while not self.abortRequested():
-            if self.player.isPlayingVideo():
+            if self._skip_for_playback():
                 xbmc.sleep(1000)
                 continue
             try:
@@ -176,7 +189,7 @@ class RefreshService(xbmc.Monitor):
             # utils.log("paused queue until read {:.2} for {}".format(cache.last_read(hash)-before_update, hash[:5]), 'info')
             if self.abortRequested():
                 break
-            if self.player.isPlayingVideo():
+            if self._skip_for_playback():
                 # Video stop will cause another refresh anyway.
                 continue
 

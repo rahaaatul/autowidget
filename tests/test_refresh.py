@@ -57,3 +57,29 @@ def test_playback_ended_without_a_start_event_does_not_raise(monkeypatch):
 
     assert saved == ["unknown"]
     assert player.type == "unknown"
+
+
+def _service(playing_video=False, refresh_during_playback=False):
+    """A service instance without starting any of its threads."""
+    service = object.__new__(refresh.RefreshService)
+    service.player = type(
+        "Player", (), {"isPlayingVideo": lambda self: playing_video}
+    )()
+    service.refresh_during_playback = refresh_during_playback
+    return service
+
+
+def test_queue_waits_for_the_playback_to_end_by_default():
+    """Without the opt-in the queue is not processed during playback."""
+    service = _service(playing_video=True, refresh_during_playback=False)
+    assert service._skip_for_playback() is True
+
+
+def test_queue_is_processed_during_playback_when_enabled():
+    service = _service(playing_video=True, refresh_during_playback=True)
+    assert service._skip_for_playback() is False
+
+
+def test_queue_is_processed_when_nothing_is_playing():
+    service = _service(playing_video=False, refresh_during_playback=False)
+    assert service._skip_for_playback() is False

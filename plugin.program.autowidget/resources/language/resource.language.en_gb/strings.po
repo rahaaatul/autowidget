@@ -899,3 +899,8 @@ msgstr "Backing up files..."
 msgctxt "#30166"
 msgid "Backup complete."
 msgstr "Backup complete."
+
+#: /resources/settings.xml:18
+msgctxt "#30167"
+msgid "Refresh Widgets During Video Playback"
+msgstr "Refresh Widgets During Video Playback"

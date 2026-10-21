@@ -906,3 +906,8 @@ msgstr "Dateien sichern..."
 msgctxt "#30166"
 msgid "Backup complete."
 msgstr "備份完成。"
+
+#: /resources/settings.xml:18
+msgctxt "#30167"
+msgid "Refresh Widgets During Video Playback"
+msgstr "Widgets während der Videowiedergabe aktualisieren"

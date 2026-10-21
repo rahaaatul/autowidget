@@ -15,6 +15,7 @@
         <setting label="$ADDON[plugin.program.autowidget 30005]" type="slider" id="service.refresh_duration" default="2" range="0.25,0.25,12" option="float" visible="lt(-1,2)" />
         <setting label="$ADDON[plugin.program.autowidget 30026]" type="enum" id="service.refresh_notification" default="1" lvalues="30062|30063|30064" visible="lt(-2,2)" />
         <setting label="$ADDON[plugin.program.autowidget 30082]" type="bool" id="service.refresh_sound" default="false" visible="lt(-3,2)" enable="lt(-1,2)" />
+        <setting label="$ADDON[plugin.program.autowidget 30167]" type="bool" id="service.refresh_during_playback" default="false" />
         
         <!-- Hidden Settings -->
         <setting type="bool" id="context.warning" default="false" visible="false" />

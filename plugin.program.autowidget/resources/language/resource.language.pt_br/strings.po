@@ -892,3 +892,8 @@ msgstr "A executar Backup dos ficheiros..."
 msgctxt "#30166"
 msgid "Backup complete."
 msgstr "Cópia de segurança concluída."
+
+#: /resources/settings.xml:18
+msgctxt "#30167"
+msgid "Refresh Widgets During Video Playback"
+msgstr "Atualizar widgets durante a reprodução de vídeo"
