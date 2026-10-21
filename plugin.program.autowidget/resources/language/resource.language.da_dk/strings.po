@@ -948,3 +948,8 @@ msgstr "Titel, A-Å"
 msgctxt "#30175"
 msgid "Year, newest first"
 msgstr "År, nyeste først"
+
+#: /resources/lib/menu.py:757
+msgctxt "#30176"
+msgid "Sort"
+msgstr "Sortér"

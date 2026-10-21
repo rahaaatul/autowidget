@@ -935,3 +935,8 @@ msgstr "العنوان، أ-ي"
 msgctxt "#30175"
 msgid "Year, newest first"
 msgstr "السنة، الأحدث أولاً"
+
+#: /resources/lib/menu.py:757
+msgctxt "#30176"
+msgid "Sort"
+msgstr "ترتيب"

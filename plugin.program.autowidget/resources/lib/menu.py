@@ -620,13 +620,19 @@ _merged_sorts = {
 }
 
 
-def _sort_merged_items(items):
+def _sort_merged_items(items, widget_def=None):
     """Sort the items of a merged widget.
 
-    Without a sort the items are shown path by path, the items of the first
-    path of the group first.
+    The sort of the widget is used, the setting of the add-on is the default
+    for the widgets that do not have one.  Without a sort the items are
+    shown path by path, the items of the first path of the group first.
     """
-    sort = settings.get_setting_int("widgets.merged_sort")
+    sort = None
+    if widget_def is not None:
+        sort = widget_def.get("sort")
+    if sort is None:
+        sort = settings.get_setting_int("widgets.merged_sort")
+
     if not sort or sort not in _merged_sorts:
         return items
 
@@ -681,7 +687,7 @@ def merged_path(group_id, widget_id):
                 items=items,
             )
 
-        for item in _sort_merged_items(items):
+        for item in _sort_merged_items(items, widget_def):
             directory.add_menu_item(**item)
 
         return titles, cat, type
@@ -855,7 +861,17 @@ def _create_action_items(group_def, _id):
                         "&action=edit_merged"
                         f"&group={group_id})"
                     ),
-                )
+                ),
+                (
+                    utils.get_string(30176),
+                    (
+                        "RunPlugin("
+                        "plugin://plugin.program.autowidget/"
+                        "?mode=manage"
+                        "&action=edit_merged_sort"
+                        f"&group={group_id})"
+                    ),
+                ),
             ],
         )
 

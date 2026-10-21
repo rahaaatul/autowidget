@@ -950,3 +950,8 @@ msgstr "Τίτλος, Α-Ζ"
 msgctxt "#30175"
 msgid "Year, newest first"
 msgstr "Έτος, πιο πρόσφατα πρώτα"
+
+#: /resources/lib/menu.py:757
+msgctxt "#30176"
+msgid "Sort"
+msgstr "Ταξινόμηση"

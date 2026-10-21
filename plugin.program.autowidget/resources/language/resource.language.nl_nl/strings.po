@@ -947,3 +947,8 @@ msgstr "Titel, A-Z"
 msgctxt "#30175"
 msgid "Year, newest first"
 msgstr "Jaar, nieuwste eerst"
+
+#: /resources/lib/menu.py:757
+msgctxt "#30176"
+msgid "Sort"
+msgstr "Sorteren"

@@ -595,3 +595,29 @@ def edit_merged_widget(group_id):
     # The skin has to render the widget again, it now shows other paths.
     utils.set_widget_refresh(widget_def["id"])
     utils.update_container(True)
+
+
+def edit_merged_sort(group_id):
+    """Change the sort of the merged widget of a group.
+
+    The sort belongs to the widget, the other merged widgets keep the sort
+    they have.
+    """
+    widget_def = manage.get_merged_widget(group_id)
+    if not widget_def:
+        return
+
+    options = [
+        utils.get_string(_id) for _id in (30170, 30171, 30172, 30173, 30174, 30175)
+    ]
+
+    choice = xbmcgui.Dialog().select(utils.get_string(30169), options)
+    if choice < 0:
+        return
+
+    widget_def["sort"] = choice
+    manage.save_path_details(widget_def)
+    # The skin has to render the widget again, it now shows the items in
+    # another order.
+    utils.set_widget_refresh(widget_def["id"])
+    utils.update_container(True)

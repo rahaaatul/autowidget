@@ -64,3 +64,20 @@ jobs:
         with:
           subject-name: 'AutoWidget ${{ steps.release.outputs.new_release_version }}'
           subject-path: dist/plugin.program.autowidget-*.zip
+
+      - name: Back-merge main into dev
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main dev
+          git checkout -B dev origin/dev
+          if ! git merge origin/main --no-edit; then
+            # The release metadata of main and dev conflict, both files are
+            # written by the release workflow, so the version of dev is kept.
+            git checkout --ours CHANGELOG.md plugin.program.autowidget/addon.xml
+            git add CHANGELOG.md plugin.program.autowidget/addon.xml
+            git commit --no-edit
+          fi
+          git push origin dev

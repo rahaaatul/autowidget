@@ -172,3 +172,71 @@ def test_merged_path_shows_the_items_of_all_paths_in_one_list(monkeypatch, kodi)
     labels = [item.label for _url, item, _is_folder in kodi.directory_items]
     # The path of the shows comes first, the date sort puts the movie first
     assert labels == ["The Movie", "The Show"]
+
+
+def test_the_sort_of_the_widget_wins_over_the_setting(monkeypatch, kodi):
+    """The widget has its own sort, the setting is the default."""
+    monkeypatch.setattr(menu.settings, "get_setting_int", lambda setting: 1)
+    items = [
+        _item("Old", type="movie", premiered="2019-01-05", year=2019),
+        _item("New", type="movie", premiered="2026-07-29", year=2026),
+    ]
+
+    sorted_items = menu._sort_merged_items(items, {"sort": 2})
+
+    assert [item["title"] for item in sorted_items] == ["Old", "New"]
+
+
+def test_the_setting_is_used_when_the_widget_has_no_sort(monkeypatch, kodi):
+    monkeypatch.setattr(menu.settings, "get_setting_int", lambda setting: 1)
+    items = [
+        _item("Old", type="movie", premiered="2019-01-05", year=2019),
+        _item("New", type="movie", premiered="2026-07-29", year=2026),
+    ]
+
+    sorted_items = menu._sort_merged_items(items, {})
+
+    assert [item["title"] for item in sorted_items] == ["New", "Old"]
+
+
+def test_the_merged_entry_has_the_sort_action(monkeypatch, kodi):
+    from resources.lib import manage
+
+    group = {
+        "id": "group-1",
+        "label": "Trending",
+        "type": "widget",
+        "paths": [
+            {"id": "shows-1", "label": "Shows", "file": {"file": "plugin://shows"}}
+        ],
+    }
+    monkeypatch.setattr(
+        manage, "get_group_by_id", lambda group_id, *args, **kwargs: group
+    )
+    monkeypatch.setattr(manage, "get_merged_widget", lambda group_id: {})
+
+    menu.group_menu("group-1")
+
+    merged = [item for _url, item, _f in kodi.directory_items if "Merged" in item.label]
+    labels = [entry[0] for entry in merged[0].context_menu]
+    assert "Paths" in labels
+    assert "Sort" in labels
+
+    sort_action = dict(merged[0].context_menu)["Sort"]
+    assert "action=edit_merged_sort" in sort_action
+
+
+def test_the_sort_of_a_widget_is_saved(monkeypatch, kodi):
+    from resources.lib import edit
+
+    widget = {"id": "widget-1", "action": "merged", "group": "group-1"}
+    monkeypatch.setattr(edit.manage, "get_merged_widget", lambda group_id: widget)
+    saved = {}
+    monkeypatch.setattr(
+        edit.manage, "save_path_details", lambda params: saved.update(params)
+    )
+    kodi.dialog_answers["select"] = 1
+
+    edit.edit_merged_sort("group-1")
+
+    assert saved["sort"] == 1
