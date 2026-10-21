@@ -73,7 +73,6 @@ def test_every_string_is_translated(language):
 
 @pytest.mark.parametrize("language", LANGUAGES)
 def test_no_broken_markup(language):
-    reference = _reference()
     entries = _parse(os.path.join(LANGUAGE_DIR, language, "strings.po"))
 
     for msg_id, (msgid, msgstr) in entries.items():

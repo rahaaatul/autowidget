@@ -728,7 +728,8 @@ msgstr "Icônes de genre vidéo"
 #: /resources/settings.xml:28
 msgctxt "#30127"
 msgid "Video Genre Fanart"
-msgstr "Genre vidéo Fanart"
+msgstr ""
+"Fanart de genre vidéo"
 
 #: /resources/settings.xml:29
 msgctxt "#30128"
@@ -738,7 +739,8 @@ msgstr "Icônes de genre musical"
 #: /resources/settings.xml:30
 msgctxt "#30129"
 msgid "Music Genre Fanart"
-msgstr "Musique Genre Fanart"
+msgstr ""
+"Fanart de genre musical"
 
 #: /resources/settings.xml:31
 msgctxt "#30130"
@@ -844,12 +846,14 @@ msgstr ""
 #: /resources/lib/menu.py:604
 msgctxt "#30149"
 msgid "Shift Group Up"
-msgstr "Déplacer le groupe vers le haut"
+msgstr ""
+"Monter le groupe"
 
 #: /resources/lib/menu.py:615
 msgctxt "#30150"
 msgid "Shift Group Down"
-msgstr "Déplacer le groupe vers le bas"
+msgstr ""
+"Descendre le groupe"
 
 #: /resources/lib/menu.py:604
 msgctxt "#30151"
@@ -914,7 +918,8 @@ msgstr "Extraction des fichiers..."
 #: /resources/lib/backup.py:153
 msgctxt "#30163"
 msgid "Restoring {} files..."
-msgstr "Restoring {} files..."
+msgstr ""
+"Restauration des fichiers {}..."
 
 #: /resources/lib/backup.py:169
 msgctxt "#30164"
