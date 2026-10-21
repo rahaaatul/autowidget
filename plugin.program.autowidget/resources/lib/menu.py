@@ -1,14 +1,10 @@
-import xbmcgui
-
 import re
 import uuid
 
-from resources.lib import manage
-from resources.lib import refresh
-from resources.lib.common import cache
-from resources.lib.common import directory
-from resources.lib.common import settings
-from resources.lib.common import utils
+import xbmcgui
+
+from resources.lib import manage, refresh
+from resources.lib.common import cache, directory, settings, utils
 
 folder_shortcut = utils.get_art("folder-shortcut")
 folder_sync = utils.get_art("folder-sync")
@@ -107,7 +103,7 @@ def group_menu(group_id):
     group_def = manage.get_group_by_id(group_id)
     if not group_def:
         utils.log(
-            '"{}" is missing, please repoint the widget to fix it.'.format(group_id),
+            f'"{group_id}" is missing, please repoint the widget to fix it.',
             "error",
         )
         return False, "AutoWidget", None
@@ -119,7 +115,7 @@ def group_menu(group_id):
 
     if len(paths) > 0:
         utils.log(
-            u"Showing {} group: {}".format(group_type, str(group_name)),
+            f"Showing {group_type} group: {str(group_name)}",
             "debug",
         )
         cm = []
@@ -176,7 +172,7 @@ def active_widgets_menu():
                         label = path_def.get("label", "").encode("utf-8")
                     else:
                         label = utils.get_string(30101).format(len(path_id))
-                except:
+                except Exception:
                     pass
 
                 title = "{} - {}".format(
@@ -186,7 +182,6 @@ def active_widgets_menu():
                 title = group_def.get("label")
 
             art = {}
-            params = {}
             cm = []
             if not action:
                 art = folder_shortcut
@@ -201,8 +196,8 @@ def active_widgets_menu():
                                 "RunPlugin("
                                 "plugin://plugin.program.autowidget/"
                                 "?mode=refresh"
-                                "&id={})"
-                            ).format(widget_id),
+                                f"&id={widget_id})"
+                            ),
                         )
                     )
                 elif action == "merged":
@@ -218,14 +213,14 @@ def active_widgets_menu():
                         "plugin://plugin.program.autowidget/"
                         "?mode=manage"
                         "&action=edit_widget"
-                        "&id={})"
-                    ).format(widget_id),
+                        f"&id={widget_id})"
+                    ),
                 )
             )
 
             if not group_def:
-                title = "{} - [COLOR firebrick]{}[/COLOR]".format(
-                    widget_id, utils.get_string(30048)
+                title = (
+                    f"{widget_id} - [COLOR firebrick]{utils.get_string(30048)}[/COLOR]"
                 )
 
             directory.add_menu_item(
@@ -308,7 +303,7 @@ def show_path(
     stack = widget_def.get("stack", [])
     path = widget_path["file"]["file"] if not stack else stack[-1]
 
-    utils.log("Loading items from {}".format(path), "debug")
+    utils.log(f"Loading items from {path}", "debug")
     files, hash = refresh.get_files_list(path, path_label, widget_id)
 
     color = widget_path.get("color", default_color)
@@ -363,7 +358,7 @@ def show_path(
                 if show_next == 1:
                     continue
 
-                label = "{} - {}".format(label, path_label)
+                label = f"{label} - {path_label}"
 
             update_params = {
                 "mode": "path",
@@ -400,8 +395,8 @@ def show_path(
             filepath = ""
             info_type = directory.info_types.get(filetype, "video")
             if (
-                path.startswith("library://{}/".format(info_type))
-                or path.startswith("{}db://".format(info_type) or path.endswith(".xsp"))
+                path.startswith(f"library://{info_type}/")
+                or path.startswith(f"{info_type}db://")
             ) and is_folder:
                 filepath = directory.make_library_path(
                     info_type, filetype, file.get("id", -1)
@@ -409,7 +404,7 @@ def show_path(
 
             directory.add_menu_item(
                 title=file["label"],
-                path=file["file"] if not filepath else filepath,
+                path=filepath if filepath else file["file"],
                 info=file,
                 isFolder=is_folder,
                 props=properties,
@@ -448,8 +443,10 @@ def call_path(path_id):
                 final_path = "StartAndroidActivity({})".format(
                     path_def["file"]["file"].replace("androidapp://sources/apps/", "")
                 )
-            elif path_def["file"]["file"].startswith("pvr://") or path_def["file"].get("type") in ["video", "movie", "episode", "musicvideo", "music", "song"]:
-                final_path = "PlayMedia(\"{}\")".format(path_def["file"]["file"])
+            elif path_def["file"]["file"].startswith("pvr://") or path_def["file"].get(
+                "type"
+            ) in ["video", "movie", "episode", "musicvideo", "music", "song"]:
+                final_path = 'PlayMedia("{}")'.format(path_def["file"]["file"])
             else:
                 final_path = "RunPlugin({})".format(path_def["file"]["file"])
         elif (
@@ -469,7 +466,7 @@ def call_path(path_id):
         )
 
     if final_path:
-        utils.log("Calling path from {} using {}".format(path_id, final_path), "debug")
+        utils.log(f"Calling path from {path_id} using {final_path}", "debug")
         utils.call_builtin(final_path)
 
 
@@ -546,7 +543,7 @@ def path_menu(group_id, action, widget_id):
         if isinstance(widget_path, dict):
             _label = widget_path.get("label", "")
 
-        utils.log("Showing widget {}".format(widget_id), "debug")
+        utils.log(f"Showing widget {widget_id}", "debug")
         titles, cat, type = show_path(group_id, _label, widget_id, widget_path)
         return titles, cat, type
     else:
@@ -578,12 +575,11 @@ def merged_path(group_id, widget_id):
         else:
             idxs = manage.choose_paths(utils.get_string(30088), paths, 5)
 
-            if idxs is not None:
-                if len(idxs) > 0:
-                    widget_def = manage.initialize(
-                        group_def, "merged", widget_id, keep=idxs
-                    )
-                    paths = widget_def["path"]
+            if idxs is not None and len(idxs) > 0:
+                widget_def = manage.initialize(
+                    group_def, "merged", widget_id, keep=idxs
+                )
+                paths = widget_def["path"]
 
     if widget_def:
         titles = []
@@ -622,8 +618,8 @@ def _create_group_context_items(group_id, target, idx, length):
                 "plugin://plugin.program.autowidget/"
                 "?mode=manage"
                 "&action=edit"
-                "&group={})"
-            ).format(group_id),
+                f"&group={group_id})"
+            ),
         ),
         (
             utils.get_string(30149) if idx > 0 else utils.get_string(30151),
@@ -633,8 +629,8 @@ def _create_group_context_items(group_id, target, idx, length):
                 "?mode=manage"
                 "&action=shift_group"
                 "&target=up"
-                "&group={})"
-            ).format(group_id),
+                f"&group={group_id})"
+            ),
         ),
         (
             utils.get_string(30150) if idx < length - 1 else utils.get_string(30152),
@@ -644,8 +640,8 @@ def _create_group_context_items(group_id, target, idx, length):
                 "?mode=manage"
                 "&action=shift_group"
                 "&target=down"
-                "&group={})"
-            ).format(group_id),
+                f"&group={group_id})"
+            ),
         ),
         (
             utils.get_string(30119),
@@ -654,9 +650,9 @@ def _create_group_context_items(group_id, target, idx, length):
                 "plugin://plugin.program.autowidget/"
                 "?mode=manage"
                 "&action=copy"
-                "&group={}"
-                "&target={})"
-            ).format(group_id, target),
+                f"&group={group_id}"
+                f"&target={target})"
+            ),
         ),
     ]
 
@@ -679,9 +675,9 @@ def _create_path_context_items(group_id, path_id, idx, length, target):
                 "plugin://plugin.program.autowidget/"
                 "?mode=manage"
                 "&action=edit_path"
-                "&group={}"
-                "&path_id={})"
-            ).format(group_id, path_id),
+                f"&group={group_id}"
+                f"&path_id={path_id})"
+            ),
         ),
         (
             utils.get_string(30014) if idx > 0 else utils.get_string(30086),
@@ -691,9 +687,9 @@ def _create_path_context_items(group_id, path_id, idx, length, target):
                 "?mode=manage"
                 "&action=shift_path"
                 "&target=up"
-                "&group={}"
-                "&path_id={})"
-            ).format(group_id, path_id),
+                f"&group={group_id}"
+                f"&path_id={path_id})"
+            ),
         ),
         (
             utils.get_string(30015) if idx < length - 1 else utils.get_string(30085),
@@ -703,9 +699,9 @@ def _create_path_context_items(group_id, path_id, idx, length, target):
                 "?mode=manage"
                 "&action=shift_path"
                 "&target=down"
-                "&group={}"
-                "&path_id={})"
-            ).format(group_id, path_id),
+                f"&group={group_id}"
+                f"&path_id={path_id})"
+            ),
         ),
     ]
 
@@ -713,7 +709,7 @@ def _create_path_context_items(group_id, path_id, idx, length, target):
 
 
 def _create_action_items(group_def, _id):
-    refresh = "$INFO[Window(10000).Property(autowidget-{}-refresh)]".format(_id)
+    refresh = f"$INFO[Window(10000).Property(autowidget-{_id}-refresh)]"
     props = {"specialsort": "bottom"}
 
     group_id = group_def["id"]

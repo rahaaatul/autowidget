@@ -1,10 +1,5 @@
-import xbmc
-import xbmcaddon
-import xbmcgui
-import xbmcvfs
-
-import codecs
 import contextlib
+import datetime
 import io
 import json
 import os
@@ -12,7 +7,12 @@ import re
 import string
 import time
 import unicodedata
-import datetime
+from urllib.parse import unquote
+
+import xbmc
+import xbmcaddon
+import xbmcgui
+import xbmcvfs
 
 # Pillow is provided by Kodi itself (8.4.0 in Kodi 21 "Omega").
 # The script.module.pil dependency only makes it importable on
@@ -20,8 +20,6 @@ import datetime
 from PIL import Image
 
 from resources.lib.common import settings
-
-from urllib.parse import unquote
 
 translatePath = xbmcvfs.translatePath
 
@@ -207,9 +205,7 @@ def make_holding_path(label, art, hash=None):
                 {
                     "title": label,
                     "label": label,
-                    "file": "plugin://plugin.program.autowidget/?mode=clear_cache&target={}&refresh=&reload=".format(
-                        hash
-                    )
+                    "file": f"plugin://plugin.program.autowidget/?mode=clear_cache&target={hash}&refresh=&reload="
                     if hash
                     else "plugin://plugin.program.autowidget/?mode=force&refresh=&reload=",
                     "art": get_art(art),
@@ -247,14 +243,14 @@ def log(msg, level="debug"):
     elif level == "error":
         _level = xbmc.LOGERROR
 
-    msg = u"{}: {}".format(_addon_id, to_text(msg))
+    msg = f"{_addon_id}: {to_text(msg)}"
     try:
         xbmc.log(msg, _level)
     except UnicodeEncodeError:
         xbmc.log(msg.encode("utf-8"), _level)
     if debug:
         debug_size = xbmcvfs.Stat(logpath).st_size() if xbmcvfs.exists(logpath) else 0
-        debug_msg = u"{}  {}{}".format(time.ctime(), level.upper(), msg[25:])
+        debug_msg = f"{time.ctime()}  {level.upper()}{msg[25:]}"
         write_file(logpath, debug_msg + "\n", mode="a" if debug_size < 1048576 else "w")
 
 
@@ -296,17 +292,17 @@ def get_art(filename, color=None):
         _i = i
         if i == "thumb":
             _i = "icon"
-        path = os.path.join(_art_path, _i, "{}.png".format(filename))
+        path = os.path.join(_art_path, _i, f"{filename}.png")
         new_path = ""
 
         if xbmcvfs.exists(path):
             if color.lower() not in ["white", "#ffffff"]:
-                new_path = os.path.join(themed_path, "{}-{}.png".format(filename, _i))
+                new_path = os.path.join(themed_path, f"{filename}-{_i}.png")
                 if not xbmcvfs.exists(new_path):
                     new_bytes = io.BytesIO()
                     icon = Image.open(path).convert("RGBA")
                     overlay = Image.new("RGBA", icon.size, color)
-                    Image.composite(overlay, icon, icon).save(new_bytes, format='png')
+                    Image.composite(overlay, icon, icon).save(new_bytes, format="png")
                     write_file(new_path, new_bytes.getvalue())
             art[i] = clean_artwork_url(new_path if xbmcvfs.exists(new_path) else path)
 
@@ -329,7 +325,7 @@ def set_color(setting=False):
     else:
         value = dialog.select(
             get_string(30110),
-            ["[COLOR {0}]{0}[/COLOR]".format(i) for i in colors],
+            [f"[COLOR {i}]{i}[/COLOR]" for i in colors],
             preselect=colors.index(color) if color in colors else -1,
         )
         if value > -1:
@@ -342,7 +338,7 @@ def set_color(setting=False):
                 del dialog
                 return
             elif len(value) == 6 and not value.startswith("#"):
-                value = "#{}".format(value)
+                value = f"#{value}"
         if setting:
             settings.set_setting_string("ui.color", value)
 
@@ -451,7 +447,7 @@ def update_container(reload=False):
 
 
 def get_valid_filename(filename):
-    whitelist = "-_.() {}{}".format(string.ascii_letters, string.digits)
+    whitelist = f"-_.() {string.ascii_letters}{string.digits}"
     char_limit = 255
 
     filename = filename.replace(" ", "_")
@@ -462,15 +458,15 @@ def get_valid_filename(filename):
     cleaned_filename = "".join(c for c in cleaned_filename if c in whitelist)
     if len(cleaned_filename) > char_limit:
         print(
-            "Warning, filename truncated because it was over {} characters. "
-            "Filenames may no longer be unique".format(char_limit)
+            f"Warning, filename truncated because it was over {char_limit} characters. "
+            "Filenames may no longer be unique"
         )
 
     return cleaned_filename[:char_limit]
 
 
 def get_unique_id(key):
-    return "{}-{}".format(get_valid_filename(to_text(key)), time.time()).lower()
+    return f"{get_valid_filename(to_text(key))}-{time.time()}".lower()
 
 
 def convert(input):
@@ -489,7 +485,7 @@ def remove_file(file):
         try:
             xbmcvfs.delete(file)
         except OSError as e:
-            log("Could not remove {}: {}".format(file, e), level="error")
+            log(f"Could not remove {file}: {e}", level="error")
 
 
 def read_file(file):
@@ -499,9 +495,9 @@ def read_file(file):
             try:
                 content = f.read()
             except Exception as e:
-                log("Could not read from {}: {}".format(file, e), level="error")
+                log(f"Could not read from {file}: {e}", level="error")
     else:
-        log("{} does not exist.".format(file), level="error")
+        log(f"{file} does not exist.", level="error")
 
     return content
 
@@ -512,24 +508,32 @@ def write_file(file, content, mode="w"):
             f.write(content)
             return True
         except Exception as e:
-            log("Could not write to {}: {}".format(file, e), level="error")
+            log(f"Could not write to {file}: {e}", level="error")
 
     return False
 
 
-def read_json(file, log_file=False, default={}):
+def read_json(file, log_file=False, default=None):
+    if default is None:
+        default = {}
     data = None
     # path = os.path.join(_addon_data, file) if _addon_data not in file else file
     path = translatePath(file)
     if not os.path.exists(path):
-        log("{} does not exist.".format(file), level="error")
+        log(f"{file} does not exist.", level="error")
         return default
     with contextlib.closing(xbmcvfs.File(file, "r")) as f:
         try:
             content = to_text(f.read())
             data = json.loads(content)
-        except (ValueError, TypeError, UnicodeDecodeError, NameError, FileNotFoundError) as e:
-            log("Could not read JSON from {}: {}".format(file, e), level="error")
+        except (
+            ValueError,
+            TypeError,
+            UnicodeDecodeError,
+            NameError,
+            FileNotFoundError,
+        ) as e:
+            log(f"Could not read JSON from {file}: {e}", level="error")
             if log_file:
                 log(content, level="info")
             os.remove(path)
@@ -541,9 +545,9 @@ def read_json(file, log_file=False, default={}):
 def write_json(file, content):
     with contextlib.closing(xbmcvfs.File(file, "w")) as f:
         try:
-            f.write(bytearray(json.dumps(content, indent=4).encode('utf-8')))
+            f.write(bytearray(json.dumps(content, indent=4).encode("utf-8")))
         except Exception as e:
-            log("Could not write to {}: {}".format(file, e), level="error")
+            log(f"Could not write to {file}: {e}", level="error")
             return False
     return True
 
@@ -733,9 +737,11 @@ def get_info_keys():
         }
         try:
             info_keys = call_jsonrpc(params)
-            _info_keys = info_keys["result"]["types"]["List.Fields.Files"]["items"]["enums"]
+            _info_keys = info_keys["result"]["types"]["List.Fields.Files"]["items"][
+                "enums"
+            ]
         except Exception as e:
-            log("Could not introspect file properties: {}".format(e), level="error")
+            log(f"Could not introspect file properties: {e}", level="error")
             _info_keys = list(_default_info_keys)
 
     return _info_keys
@@ -759,4 +765,4 @@ def timing(description):
     yield
     elapsed = time.time() - start
 
-    log("{}: {}".format(description, ft(elapsed)))
+    log(f"{description}: {ft(elapsed)}")

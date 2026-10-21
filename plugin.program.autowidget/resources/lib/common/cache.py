@@ -1,19 +1,17 @@
-import threading
-import xbmcgui
-import xbmcvfs
-import xbmc
-
-import glob
 import hashlib
 import json
 import math
 import os
-import time
 import random
+import threading
+import time
+
+import xbmc
+import xbmcgui
+import xbmcvfs
 
 from resources.lib import manage
-from resources.lib.common import settings
-from resources.lib.common import utils
+from resources.lib.common import settings, utils
 
 _addon_data = settings.get_addon_info("profile")
 
@@ -38,7 +36,7 @@ def clear_cache(target=None):
             ]:
                 utils.remove_file(os.path.join(_addon_data, file))
     else:
-        utils.remove_file(os.path.join(_addon_data, "{}.cache".format(target)))
+        utils.remove_file(os.path.join(_addon_data, f"{target}.cache"))
         utils.update_container(True)
 
 
@@ -49,15 +47,17 @@ def hash_from_cache_path(path):
 
 def read_history(path, create_if_missing=True):
     hash = path2hash(path)
-    history_path = os.path.join(_addon_data, "{}.history".format(hash))
+    history_path = os.path.join(_addon_data, f"{hash}.history")
     if not xbmcvfs.exists(history_path):
         if create_if_missing:
-            cache_data = dict(history=[], widgets=[])
+            cache_data = {"history": [], "widgets": []}
             utils.write_json(history_path, cache_data)
         else:
             cache_data = None
     else:
-        cache_data = utils.read_json(history_path, default=dict(history=[], widgets=[]))
+        cache_data = utils.read_json(
+            history_path, default={"history": [], "widgets": []}
+        )
     return cache_data
 
 
@@ -72,18 +72,24 @@ def push_cache_queue(path, widget_id=None):
         history["path"] = path
         changed = True
     if changed:
-        history_path = os.path.join(_addon_data, "{}.history".format(hash))
+        history_path = os.path.join(_addon_data, f"{hash}.history")
         utils.write_json(history_path, history)
 
-    command = {'jsonrpc': '2.0', 'method': 'JSONRPC.NotifyAll',
-                'params': {'sender': "AutoWidget",
-                    'message': "queue",
-                    'data': (hash, path, widget_id),
-                },
-                'id': 1,}
+    command = {
+        "jsonrpc": "2.0",
+        "method": "JSONRPC.NotifyAll",
+        "params": {
+            "sender": "AutoWidget",
+            "message": "queue",
+            "data": (hash, path, widget_id),
+        },
+        "id": 1,
+    }
+
     def send():
         while not utils.call_jsonrpc(command):
-            xbmc.sleep(1000) # Wait untl service starts
+            xbmc.sleep(1000)  # Wait untl service starts
+
     # Don't wait in case service hasn't started
     # TODO: check this doesn't still block until thread finishes
     threading.Thread(target=send).start()
@@ -99,7 +105,7 @@ def path2hash(path):
 
 def widgets_for_path(path):
     hash = path2hash(path)
-    history_path = os.path.join(_addon_data, "{}.history".format(hash))
+    history_path = os.path.join(_addon_data, f"{hash}.history")
     cache_data = utils.read_json(history_path) if os.path.exists(history_path) else None
     if cache_data is None:
         cache_data = {}
@@ -154,10 +160,10 @@ def cache_expiry(path, widget_id, add=None, background=True):
     # TODO: update paths on autowidget refresh based on predicted update frequency. e.g. plugins with random paths should
     # update when autowidget updates.
     hash = path2hash(path)
-    cache_path = os.path.join(_addon_data, "{}.cache".format(hash))
+    cache_path = os.path.join(_addon_data, f"{hash}.cache")
 
     # Read file every time as we might be called from multiple processes
-    history_path = os.path.join(_addon_data, "{}.history".format(hash))
+    history_path = os.path.join(_addon_data, f"{hash}.history")
     cache_data = utils.read_json(history_path) if xbmcvfs.exists(history_path) else None
     if cache_data is None:
         cache_data = {}
@@ -243,14 +249,7 @@ def cache_expiry(path, widget_id, add=None, background=True):
     # not how to measure the time delay when when the cache is read until it appears on screen?
     # Is the first cache read always the top visibible widget?
     utils.log(
-        "{} cache {}B (exp:{}, last:{}): {} {}".format(
-            result,
-            size,
-            utils.ft(expiry - time.time()),
-            utils.ft(since_read),
-            hash[:5],
-            widgets,
-        ),
+        f"{result} cache {size}B (exp:{utils.ft(expiry - time.time())}, last:{utils.ft(since_read)}): {hash[:5]} {widgets}",
         "notice",
     )
     return expiry, contents, changed
@@ -259,7 +258,7 @@ def cache_expiry(path, widget_id, add=None, background=True):
 def last_read(hash):
     # Technically this is last read or updated but we can change it to be last read Later
     # if we create another file
-    path = os.path.join(_addon_data, "{}.history".format(hash))
+    path = os.path.join(_addon_data, f"{hash}.history")
     return xbmcvfs.Stat(path).st_mtime()
 
 
@@ -305,15 +304,13 @@ def predict_update_frequency(history):
     ones = len([c for d, c in changes if c == 1]) / float(len(changes))
     # TODO: if many streaks with lots of counts then its stable and can predict
     utils.log(
-        "avg_dur {:0.0f}s, med_dur {:0.0f}s, weighted {:0.0f}s, ones {:0.2f}, all {}".format(
-            avg_dur, med_dur, weighted, ones, changes
-        ),
+        f"avg_dur {avg_dur:0.0f}s, med_dur {med_dur:0.0f}s, weighted {weighted:0.0f}s, ones {ones:0.2f}, all {changes}",
         "debug",
     )
     if ones > 0.9:
         # too unstable so no point guessing
         return DEFAULT_CACHE_TIME
-    elif DEFAULT_CACHE_TIME > avg_dur / 2.0:
+    elif avg_dur / 2.0 < DEFAULT_CACHE_TIME:
         # should not got less than 5min otherwise our updates go in a loop
         return DEFAULT_CACHE_TIME
     else:
@@ -336,13 +333,19 @@ def widgets_changed_by_watching(media_type):
     ]
 
     # Get rid of ones not read this session. These are old
-    all_hist = [hist_path for hist_path in all_hist if (xbmcvfs.Stat(hist_path).st_mtime() - _startup_time) >= 0]
+    all_hist = [
+        hist_path
+        for hist_path in all_hist
+        if (xbmcvfs.Stat(hist_path).st_mtime() - _startup_time) >= 0
+    ]
 
     # Simple version. Anything updated recently (since startup?)
     # priority = sorted(all_cache, key=os.path.getmtime)
     # Sort by chance of it updating
     plays = utils.read_json(_playback_history_path, default={}).setdefault("plays", [])
-    plays_for_type = [(time, t) for time, t in plays if t == media_type or media_type is None]
+    plays_for_type = [
+        (time, t) for time, t in plays if t == media_type or media_type is None
+    ]
     priority = sorted(
         [
             (
@@ -350,35 +353,44 @@ def widgets_changed_by_watching(media_type):
                 cache_data.get("path", ""),
                 hist_path,
             )
-            for hist_path, cache_data in [(p, utils.read_json(p, default={})) for p in all_hist]
+            for hist_path, cache_data in [
+                (p, utils.read_json(p, default={})) for p in all_hist
+            ]
         ],
         reverse=True,
     )
-    
+
     count_prob_changed = 0
     randoms = 0
     i = 0
-    for chance, path, history_path in priority:
+    for chance, path, _history_path in priority:
         hash = path2hash(path)
         if "page=" in path:
             # HACK: must be a better way
             continue
         elif chance >= 0.3 or i < 7:
             utils.log(
-                "Queue {:.2f}% {} {}".format(chance * 100, hash[:5], path),
+                f"Queue {chance * 100:.2f}% {hash[:5]} {path}",
                 "notice",
             )
             count_prob_changed += 1
             yield hash, path
-        elif random.random() <= (1/len(priority)):
+        elif random.random() <= (1 / len(priority)):
             # If widgets never get updated after playback we never get to know if they change after playback. So always pick some randomly
-            utils.log("Queue random {:.2f}% {} {}".format(chance * 100, hash[:5], path), 'notice')
+            utils.log(f"Queue random {chance * 100:.2f}% {hash[:5]} {path}", "notice")
             randoms += 1
             yield hash, path
         else:
-            utils.log("Prob not changes due to playback {:.2f}% {} {}".format(chance * 100, hash[:5], path), 'notice')
+            utils.log(
+                f"Prob not changes due to playback {chance * 100:.2f}% {hash[:5]} {path}",
+                "notice",
+            )
         i += 1
-    utils.log("=== End Widget update: {} prob changed after playback {} randoms".format(count_prob_changed, randoms), 'notice')
+    utils.log(
+        f"=== End Widget update: {count_prob_changed} prob changed after playback {randoms} randoms",
+        "notice",
+    )
+
 
 def chance_playback_updates_widget(cache_data, plays, cutoff_time=60 * 60):
     history = cache_data.setdefault("history", [])
@@ -393,7 +405,7 @@ def chance_playback_updates_widget(cache_data, plays, cutoff_time=60 * 60):
     changes, non_changes, unrelated_changes, too_late_changes = 0, 0, 0, 0
     update = ""
     update_time = 0
-    for play_time, media_type in plays:
+    for play_time, _media_type in plays:
         while (update_time - play_time) <= 0:
             last_update = update
             last_update_time = update_time
@@ -426,7 +438,7 @@ def chance_playback_updates_widget(cache_data, plays, cutoff_time=60 * 60):
             # update too long after playback to be releated
             too_late_changes += 1
             pass
-            
+
         # TODO: what if the previous update was a long time before playback?
 
     # There is probably a more statistically correct way of doing this but the idea is that
@@ -444,12 +456,12 @@ def chance_playback_updates_widget(cache_data, plays, cutoff_time=60 * 60):
     else:
         prob = (changes) / all_changes
         unknown_weight = 4
-        prob = (prob * datapoints + 0.5 * unknown_weight) / (datapoints + unknown_weight)
+        prob = (prob * datapoints + 0.5 * unknown_weight) / (
+            datapoints + unknown_weight
+        )
 
     utils.log(
-        "prob:{:.2f}% changes:{} non_changes:{} non_play_changes:{} too_late:{} plays:{} hist:{}: {}".format(
-            prob*100, changes, non_changes, unrelated_changes, too_late_changes, len(plays), hist_len, path,
-        ),
+        f"prob:{prob * 100:.2f}% changes:{changes} non_changes:{non_changes} non_play_changes:{unrelated_changes} too_late:{too_late_changes} plays:{len(plays)} hist:{hist_len}: {path}",
         "notice",
     )
     return prob

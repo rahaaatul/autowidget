@@ -1,5 +1,4 @@
 from resources.lib import refresh
-from resources.lib.common import utils
 
 
 def test_refresh_keeps_working_when_a_path_disappeared(monkeypatch):
@@ -16,7 +15,9 @@ def test_refresh_keeps_working_when_a_path_disappeared(monkeypatch):
     monkeypatch.setattr(refresh.manage, "get_widget_by_id", lambda widget_id: {})
     monkeypatch.setattr(refresh.manage, "find_defined_paths", lambda group_id=None: [])
     monkeypatch.setattr(refresh.manage, "save_path_details", save_path_details)
-    monkeypatch.setattr(refresh.manage, "get_path_by_id", lambda path_id, group_id=None: {})
+    monkeypatch.setattr(
+        refresh.manage, "get_path_by_id", lambda path_id, group_id=None: {}
+    )
     monkeypatch.setattr(refresh.utils, "update_container", lambda reload=False: None)
 
     widget_def = {

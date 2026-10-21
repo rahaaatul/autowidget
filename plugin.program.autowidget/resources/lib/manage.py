@@ -1,11 +1,10 @@
-import xbmcgui
-import xbmcvfs
-
 import os
 import random
 
-from resources.lib.common import settings
-from resources.lib.common import utils
+import xbmcgui
+import xbmcvfs
+
+from resources.lib.common import settings, utils
 
 _addon_data = settings.get_addon_info("profile")
 _userdata = "special://profile/"
@@ -50,11 +49,11 @@ def clean(widget_id=None, notify=False, all=False):
         for file in files:
             if widget_id in utils.read_file(file):
                 found = True
-                utils.log("{} found in {}; not cleaning".format(widget_id, file))
+                utils.log(f"{widget_id} found in {file}; not cleaning")
                 break
         if not found:
-            utils.log("{} not found; cleaning".format(widget_id))
-            utils.remove_file(os.path.join(_addon_data, "{}.widget".format(widget_id)))
+            utils.log(f"{widget_id} not found; cleaning")
+            utils.remove_file(os.path.join(_addon_data, f"{widget_id}.widget"))
             del dialog
             return True
         del dialog
@@ -155,13 +154,13 @@ def get_group_by_id(group_id):
     if not group_id:
         return {}
 
-    filename = "{}.group".format(group_id)
+    filename = f"{group_id}.group"
     path = os.path.join(_addon_data, filename)
 
     try:
         group_def = utils.read_json(path)
     except ValueError:
-        utils.log("Unable to parse: {}".format(path))
+        utils.log(f"Unable to parse: {path}")
         return
 
     return group_def
@@ -194,17 +193,16 @@ def highest_group_sort_order():
 
 def find_defined_groups(_type=""):
     groups = []
-    sort_order = 0
 
-    for filename in [
-        x for x in xbmcvfs.listdir(_addon_data)[1] if x.endswith(".group")
-    ]:
+    for sort_order, filename in enumerate(
+        [x for x in xbmcvfs.listdir(_addon_data)[1] if x.endswith(".group")]
+    ):
         path = os.path.join(_addon_data, filename)
 
         group_def = utils.read_json(path)
         if group_def:
             if not group_def.get("sort_order"):
-                group_def["sort_order"] = "{}".format(sort_order)
+                group_def["sort_order"] = f"{sort_order}"
                 utils.write_json(path, group_def)
             if group_def.get("content") is None:
                 group_def["content"] = ""
@@ -215,14 +213,13 @@ def find_defined_groups(_type=""):
                     groups.append(group_def)
             else:
                 groups.append(group_def)
-        sort_order += 1
 
     return sorted(groups, key=lambda x: int(x["sort_order"]))
 
 
 def find_defined_paths(group_id=None):
     if group_id:
-        filename = "{}.group".format(group_id)
+        filename = f"{group_id}.group"
         path = os.path.join(_addon_data, filename)
 
         group_def = utils.read_json(path)
@@ -247,22 +244,21 @@ def find_defined_widgets(group_id=None):
     for widget_file in widget_files:
         widget_def = utils.read_json(os.path.join(_addon_data, widget_file))
 
-        if widget_def:
-            if not group_id:
-                widgets.append(widget_def)
-            elif group_id == widget_def["group"]:
-                widgets.append(widget_def)
+        if widget_def and (not group_id or group_id == widget_def["group"]):
+            widgets.append(widget_def)
 
     return widgets
 
 
 def choose_paths(
-    label=utils.get_string(30121),
+    label=None,
     paths=None,
     threshold=None,
     indices=True,
     single=False,
 ):
+    if label is None:
+        label = utils.get_string(30121)
     if paths is None:
         return []
 

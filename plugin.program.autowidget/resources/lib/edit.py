@@ -1,11 +1,10 @@
-import xbmcgui
-
 import os
 import re
 
+import xbmcgui
+
 from resources.lib import manage
-from resources.lib.common import settings
-from resources.lib.common import utils
+from resources.lib.common import settings, utils
 
 _addon_data = settings.get_addon_info("profile")
 
@@ -42,7 +41,7 @@ def shift_group(group_id, target):
                     manage.write_path(swap_def)
                 else:
                     new_order = int(groups[-1].get("sort_order", "0")) + 1
-                    group["sort_order"] = "{}".format(new_order)
+                    group["sort_order"] = f"{new_order}"
             elif target == "down" and idx <= len(groups) - 1:
                 if idx < len(groups) - 1:
                     swap_def = groups[idx + 1]
@@ -53,7 +52,7 @@ def shift_group(group_id, target):
                     manage.write_path(swap_def)
                 else:
                     new_order = int(groups[0].get("sort_order", "0")) - 1
-                    group["sort_order"] = "{}".format(new_order)
+                    group["sort_order"] = f"{new_order}"
             break
     manage.write_path(group_def)
     utils.update_container()
@@ -92,7 +91,7 @@ def _remove_group(group_id, over=False):
         choice = dialog.yesno("AutoWidget", utils.get_string(30024))
 
     if over or choice:
-        file = os.path.join(_addon_data, "{}.group".format(group_id))
+        file = os.path.join(_addon_data, f"{group_id}.group")
         utils.remove_file(file)
         dialog.notification(
             "AutoWidget", utils.get_string(30029).format(str(group_name))
@@ -126,7 +125,7 @@ def _remove_widget(widget_id, over=False):
         choice = dialog.yesno("AutoWidget", utils.get_string(30024))
 
     if over or choice:
-        file = os.path.join(_addon_data, "{}.widget".format(widget_id))
+        file = os.path.join(_addon_data, f"{widget_id}.widget")
         utils.remove_file(file)
         dialog.notification("AutoWidget", utils.get_string(30029).format(widget_id))
     del dialog
@@ -152,7 +151,7 @@ def _show_options(group_def, path_def=None, type=""):
     edit_def = path_def if path_def else group_def
     options = _get_options(edit_def)
     remove_label = utils.get_string(30013) if path_def else utils.get_string(30012)
-    options.append(u"[COLOR firebrick]{}[/COLOR]".format(utils.to_text(remove_label)))
+    options.append(f"[COLOR firebrick]{utils.to_text(remove_label)}[/COLOR]")
     if not type:
         target = path_def["target"] if path_def else group_def["type"]
         if target not in ["shortcut", "widget", "settings"]:
@@ -188,7 +187,7 @@ def _show_options(group_def, path_def=None, type=""):
 
 def _show_widget_options(edit_def):
     options = _get_widget_options(edit_def)
-    options.append("[COLOR firebrick]{}[/COLOR]".format(utils.get_string(30089)))
+    options.append(f"[COLOR firebrick]{utils.get_string(30089)}[/COLOR]")
 
     dialog = xbmcgui.Dialog()
     idx = dialog.select(utils.get_string(30047), options)
@@ -217,7 +216,7 @@ def _get_options(edit_def, useThumbs=None):
     for key in option_keys:
         if edit_def.get(key) is not None:
             if key in utils.art_types:
-                li = xbmcgui.ListItem("[B]{}[/B]: {}".format(key, edit_def[key]))
+                li = xbmcgui.ListItem(f"[B]{key}[/B]: {edit_def[key]}")
                 li.setArt({"icon": edit_def[key]})
                 options.append(li)
             elif key == "color":
@@ -226,17 +225,17 @@ def _get_options(edit_def, useThumbs=None):
                 )
             else:
                 formatted_key = (
-                    "[COLOR goldenrod]{}[/COLOR]".format(key)
+                    f"[COLOR goldenrod]{key}[/COLOR]"
                     if key not in filter["include"]
                     else key
                 )
                 if isinstance(edit_def[key], dict):
                     label = ", ".join(edit_def[key].keys())
-                    options.append("[B]{}[/B]: {}".format(formatted_key, label))
+                    options.append(f"[B]{formatted_key}[/B]: {label}")
                 else:
                     v = edit_def[key]
                     try:
-                        options.append("[B]{}[/B]: {}".format(formatted_key, v))
+                        options.append(f"[B]{formatted_key}[/B]: {v}")
                     except UnicodeEncodeError:
                         options.append(
                             "[B]{}[/B]: {}".format(formatted_key, v.encode("utf-8"))
@@ -265,7 +264,7 @@ def _get_widget_options(edit_def):
     for key in option_keys:
         if key in edit_def and (edit_def[key] and edit_def[key] != -1):
             formatted_key = (
-                "[COLOR goldenrod]{}[/COLOR]".format(key)
+                f"[COLOR goldenrod]{key}[/COLOR]"
                 if key not in widget_filter["include"]
                 else key
             )
@@ -285,11 +284,11 @@ def _get_widget_options(edit_def):
                 hh = int(_def)
                 mm = int((_def * 60) % 60)
                 if hh and mm:
-                    label = "{}h {}m".format(hh, mm)
+                    label = f"{hh}h {mm}m"
                 elif not mm:
-                    label = "{}h".format(hh)
+                    label = f"{hh}h"
                 elif not hh:
-                    label = "{}m".format(mm)
+                    label = f"{mm}m"
             elif key == "path":
                 if edit_def["action"] not in ["static", "merged"]:
                     continue
@@ -303,7 +302,7 @@ def _get_widget_options(edit_def):
                     label = _def
 
         try:
-            options.append("[B]{}[/B]: {}".format(formatted_key, label))
+            options.append(f"[B]{formatted_key}[/B]: {label}")
         except UnicodeEncodeError:
             options.append("[B]{}[/B]: {}".format(formatted_key, label.encode("utf-8")))
 
@@ -457,11 +456,11 @@ def _get_widget_value(edit_def, key):
             hh = int(d)
             mm = int((d * 60) % 60)
             if hh and mm:
-                label = "{}h {}m".format(hh, mm)
+                label = f"{hh}h {mm}m"
             elif not mm:
-                label = "{}h".format(hh)
+                label = f"{hh}h"
             elif not hh:
-                label = "{}m".format(mm)
+                label = f"{mm}m"
 
             durations.append(label)
             d = d + 0.25
@@ -499,9 +498,7 @@ def _get_widget_value(edit_def, key):
             value = groups[choice]
     else:
         default = edit_def.get(key)
-        value = dialog.input(
-            utils.get_string(30094).format(key), defaultt=str(default)
-        )
+        value = dialog.input(utils.get_string(30094).format(key), defaultt=str(default))
 
     del dialog
     if value:

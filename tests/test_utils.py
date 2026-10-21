@@ -1,5 +1,3 @@
-import json
-
 from resources.lib.common import utils
 
 KODI_21_FIELDS = [
@@ -19,7 +17,9 @@ def _introspect_response():
     return {
         "jsonrpc": "2.0",
         "id": 1,
-        "result": {"types": {"List.Fields.Files": {"items": {"enums": KODI_21_FIELDS}}}},
+        "result": {
+            "types": {"List.Fields.Files": {"items": {"enums": KODI_21_FIELDS}}}
+        },
     }
 
 
@@ -31,7 +31,7 @@ def test_to_text_handles_none_bytes_and_numbers():
 
 
 def test_to_text_decodes_utf8():
-    assert utils.to_text("é".encode("utf-8")) == "é"
+    assert utils.to_text("é".encode()) == "é"
 
 
 def test_convert_keeps_plain_values():
@@ -62,9 +62,7 @@ def test_free_memory_is_none_for_garbage(monkeypatch):
 
 def test_info_keys_are_introspected_from_kodi(monkeypatch):
     utils._info_keys = None
-    monkeypatch.setattr(
-        utils, "call_jsonrpc", lambda params: _introspect_response()
-    )
+    monkeypatch.setattr(utils, "call_jsonrpc", lambda params: _introspect_response())
     assert utils.get_info_keys() == KODI_21_FIELDS
 
 

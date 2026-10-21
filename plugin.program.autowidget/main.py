@@ -1,8 +1,6 @@
 import sys
 
-from resources.lib.common import router
-from resources.lib.common import utils
-
+from resources.lib.common import router, utils
 
 if __name__ == "__main__":
     _handle = int(sys.argv[1])

@@ -1,5 +1,4 @@
 import pytest
-
 from resources.lib import menu
 from resources.lib.common import utils
 
@@ -67,13 +66,24 @@ def _prepare_listing(monkeypatch):
         menu.refresh,
         "get_files_list",
         lambda *args, **kwargs: (
-            [{"label": "A movie", "file": "/movies/a.mkv", "type": "movie", "filetype": "file"}],
+            [
+                {
+                    "label": "A movie",
+                    "file": "/movies/a.mkv",
+                    "type": "movie",
+                    "filetype": "file",
+                }
+            ],
             "hash",
         ),
     )
-    monkeypatch.setattr(menu.settings, "get_setting_bool", lambda *args, **kwargs: False)
+    monkeypatch.setattr(
+        menu.settings, "get_setting_bool", lambda *args, **kwargs: False
+    )
     monkeypatch.setattr(menu.settings, "get_setting_int", lambda *args, **kwargs: 0)
-    monkeypatch.setattr(menu.settings, "get_setting_string", lambda *args, **kwargs: "white")
+    monkeypatch.setattr(
+        menu.settings, "get_setting_string", lambda *args, **kwargs: "white"
+    )
 
     widget_path = {"file": {"file": "/movies/"}, "content": "movies"}
     return menu.show_path("group-id", "A label", "widget-id", widget_path)
@@ -108,7 +118,9 @@ def _prepare_group(monkeypatch, calls):
             "id": "group-id",
             "label": "Group",
             "type": "widget",
-            "paths": [{"id": "path-id", "label": "A path", "file": {"file": "/movies/"}}],
+            "paths": [
+                {"id": "path-id", "label": "A path", "file": {"file": "/movies/"}}
+            ],
         },
     )
     monkeypatch.setattr(menu.manage, "get_widget_by_id", lambda *args, **kwargs: {})
@@ -128,10 +140,16 @@ def _prepare_group(monkeypatch, calls):
 
     monkeypatch.setattr(menu.manage, "choose_paths", fake_choose_paths)
     monkeypatch.setattr(menu.manage, "initialize", fake_initialize)
-    monkeypatch.setattr(menu.refresh, "get_files_list", lambda *args, **kwargs: ([], "hash"))
-    monkeypatch.setattr(menu.settings, "get_setting_bool", lambda *args, **kwargs: False)
+    monkeypatch.setattr(
+        menu.refresh, "get_files_list", lambda *args, **kwargs: ([], "hash")
+    )
+    monkeypatch.setattr(
+        menu.settings, "get_setting_bool", lambda *args, **kwargs: False
+    )
     monkeypatch.setattr(menu.settings, "get_setting_int", lambda *args, **kwargs: 0)
-    monkeypatch.setattr(menu.settings, "get_setting_string", lambda *args, **kwargs: "white")
+    monkeypatch.setattr(
+        menu.settings, "get_setting_string", lambda *args, **kwargs: "white"
+    )
 
 
 def test_a_widget_never_asks_which_path_to_use(monkeypatch, kodi):
@@ -153,4 +171,3 @@ def test_a_normal_listing_asks_which_path_to_use(monkeypatch, kodi):
     menu.path_menu("group-id", "static", "widget-id")
 
     assert "choose_paths" in calls
-
