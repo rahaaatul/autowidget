@@ -26,7 +26,7 @@ def _parse(path):
         msg_id = int(parts[i])
         body = parts[i + 1].split("\n#:")[0].split("\nmsgctxt")[0]
 
-        def grab(key):
+        def grab(key, body=body):
             match = re.search(key + r'((?:\s*"[^"]*")+)', body)
             if not match:
                 return None
@@ -61,14 +61,14 @@ def test_every_string_is_translated(language):
     entries = _parse(os.path.join(LANGUAGE_DIR, language, "strings.po"))
 
     missing = sorted(set(reference) - set(entries))
-    assert not missing, "missing strings: {}".format(missing)
+    assert not missing, f"missing strings: {missing}"
 
     untranslated = [
         msg_id
         for msg_id, (msgid, msgstr) in entries.items()
         if not (msgstr or "").strip() and (reference[msg_id][0] or "").strip()
     ]
-    assert not untranslated, "untranslated strings: {}".format(untranslated)
+    assert not untranslated, f"untranslated strings: {untranslated}"
 
 
 @pytest.mark.parametrize("language", LANGUAGES)
@@ -76,20 +76,20 @@ def test_no_broken_markup(language):
     reference = _reference()
     entries = _parse(os.path.join(LANGUAGE_DIR, language, "strings.po"))
 
-    for msg_id, (msgid, msgstr) in entries.items():
+    for msg_id, (_msgid, msgstr) in entries.items():
         if not msgstr:
             continue
         # a truncated placeholder tag breaks the Kodi label
-        assert "<ph id=\\" not in msgstr, "#{} has a broken tag".format(msg_id)
+        assert "<ph id=\\" not in msgstr, f"#{msg_id} has a broken tag"
         # the french translation of the colour tags used to be translated
-        assert "COULEUR]" not in msgstr, "#{} translates a colour tag".format(msg_id)
+        assert "COULEUR]" not in msgstr, f"#{msg_id} translates a colour tag"
         # the colour tags of the source string have to be kept
         source = reference.get(msg_id, ("", ""))[0] or ""
         assert msgstr.count("[COLOR ") == source.count("[COLOR "), (
-            "#{} lost a colour tag".format(msg_id)
+            f"#{msg_id} lost a colour tag"
         )
         assert msgstr.count("[/COLOR]") == source.count("[/COLOR]"), (
-            "#{} lost a colour tag".format(msg_id)
+            f"#{msg_id} lost a colour tag"
         )
 
 
@@ -101,8 +101,8 @@ UNTRANSLATED = {
     "da_dk": 5,
     "de_de": 11,
     "el_gr": 2,
-    "en_gb": 167,
-    "en_us": 167,
+    "en_gb": 169,
+    "en_us": 169,
     "es_es": 2,
     "es_mx": 5,
     "fr_fr": 3,
@@ -125,7 +125,5 @@ def test_untranslated_strings_do_not_grow(language):
     )
     known = UNTRANSLATED[language.replace("resource.language.", "")]
     assert untranslated <= known, (
-        "{} has {} untranslated strings, at most {} are known".format(
-            language, untranslated, known
-        )
+        f"{language} has {untranslated} untranslated strings, at most {known} are known"
     )

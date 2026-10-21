@@ -1,25 +1,19 @@
-import xbmcgui
-import xbmcvfs
-
 import os
 import random
 
-from resources.lib.common import settings
-from resources.lib.common import utils
+import xbmcgui
+import xbmcvfs
+
+from resources.lib.common import settings, utils
 
 _addon_data = settings.get_addon_info("profile")
 _userdata = "special://profile/"
 _skin_shortcuts = settings.get_addon_info("profile", addon="script.skinshortcuts")
 
 
-def clean(widget_id=None, notify=False, all=False):
-    if all:
-        for widget in find_defined_widgets():
-            clean(widget_id=widget["id"])
-        return find_defined_widgets()
-
+def widget_reference_files():
+    """The files that hold the ids of the widgets a skin points at."""
     files = []
-    dialog = xbmcgui.Dialog()
 
     params = {
         "jsonrpc": "2.0",
@@ -28,8 +22,8 @@ def clean(widget_id=None, notify=False, all=False):
         "params": {"type": "xbmc.gui.skin"},
     }
     addons = utils.call_jsonrpc(params)
-    if "error" not in addons:
-        for addon in addons["result"]["addons"]:
+    if "error" not in addons and "result" in addons:
+        for addon in addons["result"].get("addons", []):
             path = os.path.join(
                 settings.get_addon_info("profile", addon=addon["addonid"]),
                 "settings.xml",
@@ -43,6 +37,67 @@ def clean(widget_id=None, notify=False, all=False):
                 path = os.path.join(_skin_shortcuts, xml)
                 files.append(path)
 
+    return files
+
+
+def is_widget_referenced(widget_id):
+    """True when a skin or a skin shortcut points at the widget.
+
+    Widgets that no skin points at are removed by :func:`clean`, they are
+    leftovers of a widget that was created in the add-on but never used.
+    """
+    if not widget_id:
+        return False
+
+    return any(widget_id in utils.read_file(file) for file in widget_reference_files())
+
+
+def widget_updated_at(widget_id):
+    """When the definition of a widget was written the last time."""
+    path = os.path.join(_addon_data, f"{widget_id}.widget")
+    try:
+        return os.path.getmtime(path)
+    except OSError:
+        return 0
+
+
+def get_merged_widget(group_id):
+    """The merged widget of a group.
+
+    The widget a skin points at is preferred, that is the one that is shown
+    in the skin and in the list of the active widgets.  Widgets that no skin
+    points at are leftovers and are removed by :func:`clean`.
+    """
+    widgets = [
+        widget
+        for widget in find_defined_widgets(group_id)
+        if widget.get("action") == "merged"
+    ]
+    if not widgets:
+        return {}
+
+    referenced = [
+        widget for widget in widgets if is_widget_referenced(widget.get("id", ""))
+    ]
+    if referenced:
+        widgets = referenced
+
+    widgets.sort(
+        key=lambda widget: widget_updated_at(widget.get("id", "")),
+        reverse=True,
+    )
+    return widgets[0]
+
+
+def clean(widget_id=None, notify=False, all=False):
+    if all:
+        for widget in find_defined_widgets():
+            clean(widget_id=widget["id"])
+        return find_defined_widgets()
+
+    files = widget_reference_files()
+    dialog = xbmcgui.Dialog()
+
     removed = 0
 
     if widget_id:
@@ -50,11 +105,11 @@ def clean(widget_id=None, notify=False, all=False):
         for file in files:
             if widget_id in utils.read_file(file):
                 found = True
-                utils.log("{} found in {}; not cleaning".format(widget_id, file))
+                utils.log(f"{widget_id} found in {file}; not cleaning")
                 break
         if not found:
-            utils.log("{} not found; cleaning".format(widget_id))
-            utils.remove_file(os.path.join(_addon_data, "{}.widget".format(widget_id)))
+            utils.log(f"{widget_id} not found; cleaning")
+            utils.remove_file(os.path.join(_addon_data, f"{widget_id}.widget"))
             del dialog
             return True
         del dialog
@@ -155,13 +210,13 @@ def get_group_by_id(group_id):
     if not group_id:
         return {}
 
-    filename = "{}.group".format(group_id)
+    filename = f"{group_id}.group"
     path = os.path.join(_addon_data, filename)
 
     try:
         group_def = utils.read_json(path)
     except ValueError:
-        utils.log("Unable to parse: {}".format(path))
+        utils.log(f"Unable to parse: {path}")
         return
 
     return group_def
@@ -194,17 +249,16 @@ def highest_group_sort_order():
 
 def find_defined_groups(_type=""):
     groups = []
-    sort_order = 0
 
-    for filename in [
-        x for x in xbmcvfs.listdir(_addon_data)[1] if x.endswith(".group")
-    ]:
+    for sort_order, filename in enumerate(
+        [x for x in xbmcvfs.listdir(_addon_data)[1] if x.endswith(".group")]
+    ):
         path = os.path.join(_addon_data, filename)
 
         group_def = utils.read_json(path)
         if group_def:
             if not group_def.get("sort_order"):
-                group_def["sort_order"] = "{}".format(sort_order)
+                group_def["sort_order"] = f"{sort_order}"
                 utils.write_json(path, group_def)
             if group_def.get("content") is None:
                 group_def["content"] = ""
@@ -215,14 +269,13 @@ def find_defined_groups(_type=""):
                     groups.append(group_def)
             else:
                 groups.append(group_def)
-        sort_order += 1
 
     return sorted(groups, key=lambda x: int(x["sort_order"]))
 
 
 def find_defined_paths(group_id=None):
     if group_id:
-        filename = "{}.group".format(group_id)
+        filename = f"{group_id}.group"
         path = os.path.join(_addon_data, filename)
 
         group_def = utils.read_json(path)
@@ -247,22 +300,22 @@ def find_defined_widgets(group_id=None):
     for widget_file in widget_files:
         widget_def = utils.read_json(os.path.join(_addon_data, widget_file))
 
-        if widget_def:
-            if not group_id:
-                widgets.append(widget_def)
-            elif group_id == widget_def["group"]:
-                widgets.append(widget_def)
+        if widget_def and (not group_id or group_id == widget_def["group"]):
+            widgets.append(widget_def)
 
     return widgets
 
 
 def choose_paths(
-    label=utils.get_string(30121),
+    label=None,
     paths=None,
     threshold=None,
     indices=True,
     single=False,
+    preselect=None,
 ):
+    if label is None:
+        label = utils.get_string(30121)
     if paths is None:
         return []
 
@@ -282,16 +335,17 @@ def choose_paths(
             [i["label"] for i in paths],
         )
     else:
+        if preselect is not None:
+            default = list(preselect)
+        elif threshold is None or threshold == -1 or len(paths) <= threshold:
+            default = list(range(len(paths)))
+        else:
+            default = []
+
         idxs = dialog.multiselect(
             label,
             [i["label"] for i in paths],
-            preselect=(
-                list(range(len(paths)))
-                if len(paths) <= threshold or threshold == -1
-                else []
-            )
-            if threshold is not None
-            else list(range(len(paths))),
+            preselect=default,
         )
     del dialog
 

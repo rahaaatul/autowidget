@@ -1,38 +1,34 @@
 import json
+import os
+import queue
+import random
+import threading
+import time
+import traceback
+
 import xbmc
 import xbmcgui
 import xbmcvfs
 
-import os
-import random
-import time
-import threading
-import queue
-
 from resources.lib import manage
-from resources.lib.common import cache
-from resources.lib.common import settings
-from resources.lib.common import utils
-from resources.lib.common import version
+from resources.lib.common import cache, settings, utils, version
 
 _addon_data = settings.get_addon_info("profile")
 
-skin_string_pattern = "autowidget-{}-{}"
 _properties = ["context.autowidget"]
+
 
 class RefreshService(xbmc.Monitor):
     def __init__(self):
         """Starts all of the actions of AutoWidget's service."""
-        super(RefreshService, self).__init__()
+        super().__init__()
         # Threads is IO bound more than CPU bound so would depend more disk
         # speed and RAM than anything else. how to pick a default value for that?
         # RAM is maybe biggest factor. low ram = more plugins at once = more swap on low disks
         mem_used = utils.get_free_memory_mb()
         self.low_end = mem_used is not None and mem_used < 500
         utils.log(
-            "+++++ STARTING AUTOWIDGET SERVICE on Kodi {} Free Ram: {}MB, Low End: {} +++++".format(
-                version.get_version_string(), mem_used, self.low_end
-            ),
+            f"+++++ STARTING AUTOWIDGET SERVICE on Kodi {version.get_version_string()} Free Ram: {mem_used}MB, Low End: {self.low_end} +++++",
             "info",
         )
 
@@ -52,13 +48,13 @@ class RefreshService(xbmc.Monitor):
     def _update_properties(self):
         for property in _properties:
             setting = settings.get_setting(property)
-            utils.log("{}: {}".format(property, setting))
+            utils.log(f"{property}: {setting}")
             if setting is not None:
                 utils.set_property(property, setting)
-                utils.log("Property {0} set".format(property))
+                utils.log(f"Property {property} set")
             else:
                 utils.clear_property(property)
-                utils.log("Property {0} cleared".format(property))
+                utils.log(f"Property {property} cleared")
 
         self._reload_settings()
 
@@ -69,6 +65,9 @@ class RefreshService(xbmc.Monitor):
             "service.refresh_notification"
         )
         self.refresh_sound = settings.get_setting_bool("service.refresh_sound")
+        self.refresh_during_playback = settings.get_setting_bool(
+            "service.refresh_during_playback"
+        )
 
         utils.update_container(True)
 
@@ -87,7 +86,6 @@ class RefreshService(xbmc.Monitor):
             i += step
             yield i
 
-
     def _update_widgets(self):
         if self.low_end:
             self.waitForAbort(30)
@@ -97,14 +95,15 @@ class RefreshService(xbmc.Monitor):
             self._refresh(startup)
             startup = False
 
-            utils.log("Time till refresh: {}s".format(60 * 60 * self.refresh_duration), "notice")
+            utils.log(
+                f"Time till refresh: {60 * 60 * self.refresh_duration}s", "notice"
+            )
             for _ in self.tick(step=5, max=60 * 60 * self.refresh_duration):
                 # don't process cache queue during video playback
                 if self.abortRequested():
                     break
 
-
-    def onNotification(self, sender, method, data):     
+    def onNotification(self, sender, method, data):
         if sender == "AutoWidget":
             data = json.loads(data)
             utils.log("Added to queue: {} {} {}".format(*data), "notice")
@@ -112,6 +111,15 @@ class RefreshService(xbmc.Monitor):
             self.queue.put(tuple(data))
             return True
 
+    def _skip_for_playback(self):
+        """True while the queue has to wait for the playback to end.
+
+        Refreshing during playback is opt-in, because it makes Kodi fetch
+        content while the user is watching something. When it is disabled the
+        widgets keep showing the "Loading content..." placeholder until the
+        playback has finished.
+        """
+        return self.player.isPlayingVideo() and not self.refresh_during_playback
 
     def _processQueue(self):
         if self.low_end:
@@ -119,7 +127,7 @@ class RefreshService(xbmc.Monitor):
         utils.log("Starting processing queue", "notice")
 
         while not self.abortRequested():
-            if self.player.isPlayingVideo():
+            if self._skip_for_playback():
                 xbmc.sleep(1000)
                 continue
             try:
@@ -127,8 +135,10 @@ class RefreshService(xbmc.Monitor):
             except queue.Empty:
                 # TODO: first run of queue. first refresh now?
                 continue
-            history_path = os.path.join(_addon_data, "{}.history".format(hash))
-            cache_data = utils.read_json(history_path) if xbmcvfs.exists(history_path) else None
+            history_path = os.path.join(_addon_data, f"{hash}.history")
+            cache_data = (
+                utils.read_json(history_path) if xbmcvfs.exists(history_path) else None
+            )
             # class Progress(object):
             #     dialog = None
             #     service = self
@@ -151,17 +161,24 @@ class RefreshService(xbmc.Monitor):
 
             # progress = Progress()
 
-            utils.log("Dequeued cache update: {} {}".format(hash[:5], path), "notice")
+            utils.log(f"Dequeued cache update: {hash[:5]} {path}", "notice")
 
-            affected_widgets = set(
-                cache.cache_and_update(
-                    path,
-                    widget_id,
-                    cache_data,  # notify=progress
+            try:
+                affected_widgets = set(
+                    cache.cache_and_update(
+                        path,
+                        widget_id,
+                        cache_data,  # notify=progress
+                    )
                 )
-            )
+            except Exception:
+                # A path that can not be updated must not stop the queue, the
+                # widget would keep showing "Loading content..." forever.
+                utils.log(traceback.format_exc(), "error")
+                continue
+
             if affected_widgets:
-                updated = True
+                pass
             # unrefreshed_widgets = unrefreshed_widgets.union(affected_widgets)
             # # wait 5s or for the skin to reload the widget
             # # this should reduce churn at startup where widgets take too long too long show up
@@ -171,7 +188,7 @@ class RefreshService(xbmc.Monitor):
             # utils.log("paused queue until read {:.2} for {}".format(cache.last_read(hash)-before_update, hash[:5]), 'info')
             if self.abortRequested():
                 break
-            if self.player.isPlayingVideo():
+            if self._skip_for_playback():
                 # Video stop will cause another refresh anyway.
                 continue
 
@@ -180,11 +197,14 @@ class RefreshService(xbmc.Monitor):
                 if not widget_def:
                     continue
                 _update_strings(widget_def)
-            if (
-                xbmcvfs.exists(os.path.join(_addon_data, "refresh.time"))
-                and utils.get_active_window() == "home"
-            ):
-                utils.update_container(True)
+            if xbmcvfs.exists(os.path.join(_addon_data, "refresh.time")):
+                if utils.get_active_window() == "home":
+                    utils.update_container(True)
+                else:
+                    # Reload the container when the widget is on screen in a
+                    # media window, otherwise the "Loading content..."
+                    # placeholder stays until the user navigates away and back.
+                    utils.refresh_plugin_container()
             # # if progress.dialog is not None:
             # #     progress.dialog.update(100)
             # #     progress.dialog.close()
@@ -199,7 +219,6 @@ class RefreshService(xbmc.Monitor):
             #     )
         utils.log("Stop processing queue", "notice")
 
-
     def _refresh(self, startup=False):
         if self.refresh_enabled in [0, 1] and manage.find_defined_widgets():
             notification = False
@@ -211,11 +230,10 @@ class RefreshService(xbmc.Monitor):
                     )
                     return
             else:
-                if self.refresh_notification == 0:
+                if self.refresh_notification == 0 or (
+                    self.refresh_notification == 1 and not self.player.isPlayingVideo()
+                ):
                     notification = True
-                elif self.refresh_notification == 1:
-                    if not self.player.isPlayingVideo():
-                        notification = True
 
             utils.log("+++++ REFRESHING AUTOWIDGETS +++++", "info")
             refresh_paths(notify=notification and not startup)
@@ -224,9 +242,12 @@ class RefreshService(xbmc.Monitor):
 
         if not startup:
             return
-        utils.log("+++++ AUTOWIDGET Refreshing widgets changed after playback in case of crash +++++", "info")
+        utils.log(
+            "+++++ AUTOWIDGET Refreshing widgets changed after playback in case of crash +++++",
+            "info",
+        )
         # because update after playback could have been interupted. Do on startup too
-        for hash, path in cache.widgets_changed_by_watching(None):
+        for _hash, path in cache.widgets_changed_by_watching(None):
             # Queue them for refresh
             cache.push_cache_queue(path)
             # utils.log("Queued cache update: {}".format(hash[:5]), "notice")
@@ -234,8 +255,7 @@ class RefreshService(xbmc.Monitor):
 
 
 def _update_strings(widget_def):
-    refresh = skin_string_pattern.format(widget_def["id"], "refresh")
-    utils.set_property(refresh, "{}".format(time.time()))
+    utils.set_widget_refresh(widget_def["id"])
     utils.log(
         "Refreshing widget {} to display {}".format(
             widget_def["id"], widget_def["path"]
@@ -252,7 +272,7 @@ def update_path(widget_id, target, path=None):
     stack = widget_def.get("stack", [])
 
     if target == "next" and path:
-        utils.log("Next Page selected from {}".format(widget_id), "debug")
+        utils.log(f"Next Page selected from {widget_id}", "debug")
         path_def = manage.get_path_by_id(widget_def["path"], widget_def["group"])
         if isinstance(path_def, dict):
             widget_def["label"] = path_def["label"]
@@ -260,7 +280,7 @@ def update_path(widget_id, target, path=None):
         stack.append(path)
         widget_def["stack"] = stack
     elif target == "back" and widget_def.get("stack"):
-        utils.log("Previous Page selected from {}".format(widget_id), "debug")
+        utils.log(f"Previous Page selected from {widget_id}", "debug")
         widget_def["stack"] = widget_def["stack"][:-1]
     elif target == "reset":
         if len(stack) > 0:
@@ -281,13 +301,13 @@ def back_to_top(target):
         return
     actions = ["back", "firstpage", "right"]
     for action in actions:
-        utils.call_builtin("Action({})".format(action), 100)
+        utils.call_builtin(f"Action({action})", 100)
 
 
 def refresh(widget_id, widget_def=None, paths=None, force=False, single=False):
     if widget_id == "auto":
         widget_id = utils.get_infolabel("ListItem.Property(autoID)")
-    
+
     if not widget_def:
         widget_def = manage.get_widget_by_id(widget_id)
 
@@ -312,38 +332,35 @@ def refresh(widget_id, widget_def=None, paths=None, force=False, single=False):
                 cycle_paths = [p.get("id") for p in manage.find_defined_paths(group_id)]
                 widget_def["cycle_paths"] = cycle_paths
 
-            paths = [p for p in cycle_paths]
+            paths = list(cycle_paths)
 
-        if action:
-            if len(paths) > 0:
-                next = 0
-                if action == "next":
-                    next = (current + 1) % len(paths)
+        if action and len(paths) > 0:
+            next = 0
+            if action == "next":
+                next = (current + 1) % len(paths)
 
-                elif action == "random":
-                    random.shuffle(paths)
-                    next = random.randrange(len(paths))
+            elif action == "random":
+                random.shuffle(paths)
+                next = random.randrange(len(paths))
 
-                widget_def["current"] = next
-                path_id = paths[next]
-                paths.remove(paths[next])
+            widget_def["current"] = next
+            path_id = paths[next]
+            paths.remove(paths[next])
 
-                widget_def["path"] = path_id
-                if widget_def["path"]:
-                    path_def = manage.get_path_by_id(path_id, group_id)
-                    if path_def:
-                        widget_def["label"] = path_def.get("label", "")
-                        widget_def["updated"] = 0 if force else current_time
+            widget_def["path"] = path_id
+            if widget_def["path"]:
+                path_def = manage.get_path_by_id(path_id, group_id)
+                if path_def:
+                    widget_def["label"] = path_def.get("label", "")
+                    widget_def["updated"] = 0 if force else current_time
 
-                        manage.save_path_details(widget_def)
-                        _update_strings(widget_def)
-                    else:
-                        utils.log(
-                            "Path {} of group {} no longer exists".format(
-                                path_id, group_id
-                            ),
-                            "warning",
-                        )
+                    manage.save_path_details(widget_def)
+                    _update_strings(widget_def)
+                else:
+                    utils.log(
+                        f"Path {path_id} of group {group_id} no longer exists",
+                        "warning",
+                    )
 
         if single:
             utils.update_container(True)
@@ -380,25 +397,25 @@ def get_files_list(path, label=None, widget_id=None, background=True):
     _, files, _ = cache.cache_expiry(path, widget_id, background=background)
     if files is None:
         # Should only happen now when background is False
-        utils.log("Blocking cache path read: {}".format(hash[:5]), "info")
+        utils.log(f"Blocking cache path read: {hash[:5]}", "info")
         files, changed = cache.cache_files(path, widget_id)
 
     new_files = []
     if "result" in files:
         files = files.get("result", {}).get("files", [])
     elif "error" in files:
-        utils.log("Error processing {}".format(hash), "error")
+        utils.log(f"Error processing {hash}", "error")
         error_tile = utils.make_holding_path(
             utils.get_string(30137).format(label), "alert", hash=hash
         )
         files = error_tile.get("result", {}).get("files", [])
-        cache_path = os.path.join(_addon_data, "{}.cache".format(hash))
+        cache_path = os.path.join(_addon_data, f"{hash}.cache")
         if xbmcvfs.exists(cache_path):
             utils.remove_file(cache_path)
-        utils.log("Invalid cache file removed for {}".format(hash))
+        utils.log(f"Invalid cache file removed for {hash}")
 
     if not files:
-        utils.log("No items found for {}".format(hash))
+        utils.log(f"No items found for {hash}")
         empty_tile = utils.make_holding_path(
             utils.get_string(30138).format(label), "information-outline", hash=hash
         )
@@ -440,12 +457,16 @@ def is_duplicate(title, titles):
 # Get info on whats playing and use it to update the right widgets when playback stopped
 class Player(xbmc.Player):
     def __init__(self):
-        super(Player, self).__init__()
+        super().__init__()
         self.publish = None
         self.totalTime = -1
         self.playingTime = 0
         self.info = {}
         self.path = None
+        # Set in onPlayBackStarted, but playback can end without a start
+        # event reaching this instance (the service started mid playback for
+        # example), so it always has to hold a usable value.
+        self.type = "unknown"
 
     def playing_type(self):
         """
@@ -463,19 +484,18 @@ class Player(xbmc.Player):
             filename = self.getPlayingFile()
         except RuntimeError:
             filename = ""
-        if filename != "":
-            if filename[0:3] == "pvr":
-                if xbmc.getCondVisibility("Pvr.IsPlayingTv"):
-                    return "liveTV"
-                elif xbmc.getCondVisibility("Pvr.IsPlayingRecording"):
-                    return "recordedTV"
-                elif xbmc.getCondVisibility("Pvr.IsPlayingRadio"):
-                    return "PVRradio"
-                else:
-                    for string in substrings:
-                        if string in filename:
-                            isMovie = False
-                            break
+        if filename != "" and filename[0:3] == "pvr":
+            if xbmc.getCondVisibility("Pvr.IsPlayingTv"):
+                return "liveTV"
+            elif xbmc.getCondVisibility("Pvr.IsPlayingRecording"):
+                return "recordedTV"
+            elif xbmc.getCondVisibility("Pvr.IsPlayingRadio"):
+                return "PVRradio"
+            else:
+                for string in substrings:
+                    if string in filename:
+                        isMovie = False
+                        break
         if isMovie:
             return "movie"
         elif xbmc.getCondVisibility("VideoPlayer.Content(episodes)"):
@@ -517,6 +537,8 @@ class Player(xbmc.Player):
         # Once a playback ends.
         # Work out which cached paths are most likely to change based on playback history
 
+        playback_type = self.type
+
         # Record playback in a history db so we can potentially use this for future predictions.
         try:
             tt = self.totalTime
@@ -529,18 +551,19 @@ class Player(xbmc.Player):
         self.totalTime = -1.0
         self.playingTime = 0.0
         self.info = {}
-        cache.save_playback_history(self.type, pp, self.path)
-        utils.log("recorded playback of {}% {}".format(pp, self.type), "notice")
+        cache.save_playback_history(playback_type, pp, self.path)
+        utils.log(f"recorded playback of {pp}% {playback_type}", "notice")
 
         # TODO: find which cache file has self.path in it. This probably would have changed
 
         # wait for a bit so scrobing can happen
         # time.sleep(5)
-        for hash, path in cache.widgets_changed_by_watching(self.type):
+        for _hash, path in cache.widgets_changed_by_watching(playback_type):
             # Queue them for refresh
             cache.push_cache_queue(path)
             # utils.log("Queued cache update: {}".format(hash[:5]), "notice")
         # utils.update_container(reload=True)
+        self.type = "unknown"
         utils.log("++ Finished queing widget updates after playback ++", "notice")
 
     def onPlayBackStopped(self):
@@ -564,11 +587,14 @@ class Player(xbmc.Player):
     def onQueueNextItem(self):
         pass
 
+
 class OrderedSetQueue(queue.Queue):
     def _init(self, maxsize):
         self.queue = {}  # Python 3 dict is ordered
+
     def _put(self, item):
         self.queue[item] = None
+
     def _get(self):
         val = next(iter(self.queue.keys()))
         del self.queue[val]

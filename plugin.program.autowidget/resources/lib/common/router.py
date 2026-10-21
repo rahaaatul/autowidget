@@ -1,16 +1,8 @@
 import traceback
-
 from urllib.parse import parse_qsl
 
-from resources.lib import add
-from resources.lib import backup
-from resources.lib import edit
-from resources.lib import menu
-from resources.lib import manage
-from resources.lib import refresh
-from resources.lib.common import cache
-from resources.lib.common import directory
-from resources.lib.common import utils
+from resources.lib import add, backup, edit, manage, menu, refresh
+from resources.lib.common import cache, directory, utils
 
 
 def _log_params(_params):
@@ -18,7 +10,7 @@ def _log_params(_params):
 
     params = dict(parse_qsl(_params))
     if params:
-        msg = msg.format("][".join([" {}: {} ".format(p, params[p]) for p in params]))
+        msg = msg.format("][".join([f" {p}: {params[p]} " for p in params]))
     else:
         msg = msg.format(" root ")
     utils.log(msg, "info")
@@ -42,6 +34,11 @@ def dispatch(_handle, _params):
     target = params.get("target", "")
     widget_id = params.get("id", "")
 
+    # A skin widget renders the list inside a small box on the home screen.
+    # The add-on is told about it with 'widget=true' in the plugin url, when
+    # the parameter is missing the context is detected automatically.
+    utils.set_widget_mode_from_params(params)
+
     if not mode:
         is_dir, category, is_type = menu.root_menu()
     elif mode == "manage":
@@ -59,9 +56,10 @@ def dispatch(_handle, _params):
             edit.edit_dialog(group, path_id)
         elif action == "edit_widget":
             edit.edit_widget_dialog(widget_id)
-        elif action == "copy":
-            if group and target:
-                add.copy_group(group, target)
+        elif action == "edit_merged":
+            edit.edit_merged_widget(group)
+        elif action == "copy" and group and target:
+            add.copy_group(group, target)
     elif mode == "group":
         if not group:
             is_dir, category, is_type = menu.my_groups_menu()
@@ -77,7 +75,7 @@ def dispatch(_handle, _params):
                 is_dir, category, is_type = menu.merged_path(group, widget_id)
             elif action == "update" and target:
                 refresh.update_path(widget_id, target, path)
-        except Exception as e:
+        except Exception:
             utils.log(traceback.format_exc(), "error")
             is_dir, category, is_type = menu.show_error(
                 widget_id if widget_id else path_id

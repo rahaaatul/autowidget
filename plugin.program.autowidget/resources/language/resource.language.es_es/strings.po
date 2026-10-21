@@ -900,3 +900,13 @@ msgstr "Haciendo copia de seguridad de los archivos..."
 msgctxt "#30166"
 msgid "Backup complete."
 msgstr "Copia de seguridad completada."
+
+#: /resources/settings.xml:18
+msgctxt "#30167"
+msgid "Refresh Widgets During Video Playback"
+msgstr "Actualizar widgets durante la reproducción de vídeo"
+
+#: /resources/lib/menu.py:194
+msgctxt "#30168"
+msgid "Paths"
+msgstr "Rutas"

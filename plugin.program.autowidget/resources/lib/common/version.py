@@ -33,10 +33,7 @@ def get_version():
 
     if _version is None:
         match = re.search(r"(\d+)\.(\d+)", get_build_version())
-        if match:
-            _version = (int(match.group(1)), int(match.group(2)))
-        else:
-            _version = (0, 0)
+        _version = (int(match.group(1)), int(match.group(2))) if match else (0, 0)
 
     return _version
 
@@ -50,9 +47,9 @@ def get_version_string():
 
     codename = KODI_CODENAMES.get(major)
     if codename:
-        return "{}.{} ({})".format(major, minor, codename)
+        return f"{major}.{minor} ({codename})"
 
-    return "{}.{}".format(major, minor)
+    return f"{major}.{minor}"
 
 
 def at_least(major, minor=0):

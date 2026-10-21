@@ -9,13 +9,43 @@ handed over to Kodi.
 
 import json
 import os
+import re
 import shutil
 import sys
 import tempfile
 import types
 
 
-class MockListItem(object):
+def _load_strings():
+    """The English strings of the add-on.
+
+    The tests assert on the labels the user sees, so the mock returns the
+    real strings instead of a placeholder.
+    """
+    addon_dir = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "plugin.program.autowidget",
+    )
+    po_file = os.path.join(
+        addon_dir, "resources", "language", "resource.language.en_gb", "strings.po"
+    )
+    if not os.path.isfile(po_file):
+        return {}
+
+    with open(po_file, encoding="utf-8", newline="") as f:
+        content = f.read().replace("\r\n", "\n")
+
+    strings = {}
+    parts = re.split(r'msgctxt "#(\d+)"\n', content)
+    for i in range(1, len(parts), 2):
+        body = parts[i + 1].split("\n#:")[0].split("\nmsgctxt")[0]
+        match = re.search(r'msgstr((?:\s*"[^"]*")+)', body)
+        if match:
+            strings[int(parts[i])] = "".join(re.findall(r'"([^"]*)"', match.group(1)))
+    return strings
+
+
+class MockListItem:
     """Records what the add-on sets on a list item."""
 
     def __init__(self, label="", label2="", path="", offscreen=False):
@@ -28,6 +58,7 @@ class MockListItem(object):
         self.uniqueids = {}
         self.cast = None
         self.mimetype = None
+        self.context_menu = []
         self.stream_info = []
 
     def setInfo(self, type, infoLabels):
@@ -55,13 +86,13 @@ class MockListItem(object):
         self.stream_info.append((type, values))
 
     def addContextMenuItems(self, items, replaceItems=False):
-        pass
+        self.context_menu.extend(items)
 
     def __repr__(self):
-        return "<MockListItem {!r}>".format(self.label)
+        return f"<MockListItem {self.label!r}>"
 
 
-class MockDialog(object):
+class MockDialog:
     def __init__(self, mock):
         self._mock = mock
 
@@ -78,13 +109,14 @@ class MockDialog(object):
         return self._mock.dialog_answers.get("select", -1)
 
     def multiselect(self, *args, **kwargs):
+        self._mock.dialog_calls.append(("multiselect", args, kwargs))
         return self._mock.dialog_answers.get("multiselect", None)
 
     def browse(self, *args, **kwargs):
         return self._mock.dialog_answers.get("browse", "")
 
 
-class MockDialogProgress(object):
+class MockDialogProgress:
     def __init__(self, *args, **kwargs):
         self.updates = []
 
@@ -98,7 +130,7 @@ class MockDialogProgress(object):
         pass
 
 
-class KodiMock(object):
+class KodiMock:
     """Installs fake ``xbmc`` modules into ``sys.modules``."""
 
     def __init__(self, profile=None):
@@ -118,10 +150,16 @@ class KodiMock(object):
         self.addon_info = {}
         self.jsonrpc_handler = None
         self.modules = {}
+        self.builtins = []
+        self.dialog_calls = []
+        self.strings = _load_strings()
 
     # -- helpers --------------------------------------------------------
     def set_info_label(self, label, value):
         self.info_labels[label] = value
+
+    def set_cond_visibility(self, condition, value=True):
+        self.conditions[condition] = value
 
     def set_jsonrpc_handler(self, handler):
         """handler(request_dict) -> response dict (or str)"""
@@ -129,13 +167,17 @@ class KodiMock(object):
 
     def translate_path(self, path):
         if path.startswith("special://profile"):
-            return os.path.join(self.profile, path[len("special://profile"):].lstrip("/"))
+            return os.path.join(
+                self.profile, path[len("special://profile") :].lstrip("/")
+            )
         if path.startswith("special://home"):
-            return os.path.join(self.home, path[len("special://home"):].lstrip("/"))
+            return os.path.join(self.home, path[len("special://home") :].lstrip("/"))
         if path.startswith("special://masterprofile"):
-            return os.path.join(self.home, path[len("special://masterprofile"):].lstrip("/"))
+            return os.path.join(
+                self.home, path[len("special://masterprofile") :].lstrip("/")
+            )
         if path.startswith("special://"):
-            return os.path.join(self.home, path[len("special://"):].lstrip("/"))
+            return os.path.join(self.home, path[len("special://") :].lstrip("/"))
         return path
 
     def cleanup(self):
@@ -174,19 +216,21 @@ class KodiMock(object):
             pass
 
         def executebuiltin(command, wait=False):
-            pass
+            mock.builtins.append(command)
 
         def executeJSONRPC(request):
             if isinstance(request, (str, bytes)):
                 request = json.loads(request)
             if mock.jsonrpc_handler is None:
-                return json.dumps({"jsonrpc": "2.0", "id": request.get("id"), "result": {}})
+                return json.dumps(
+                    {"jsonrpc": "2.0", "id": request.get("id"), "result": {}}
+                )
             response = mock.jsonrpc_handler(request)
             if isinstance(response, str):
                 return response
             return json.dumps(response)
 
-        class Monitor(object):
+        class Monitor:
             def __init__(self, *args, **kwargs):
                 pass
 
@@ -196,7 +240,7 @@ class KodiMock(object):
             def abortRequested(self):
                 return False
 
-        class Player(object):
+        class Player:
             def __init__(self, *args, **kwargs):
                 pass
 
@@ -235,7 +279,7 @@ class KodiMock(object):
         xbmcaddon = types.ModuleType("xbmcaddon")
         mock = self
 
-        class Addon(object):
+        class Addon:
             def __init__(self, id=None):
                 self.id = id or "plugin.program.autowidget"
                 self._settings = mock.addon_settings.setdefault(self.id, {})
@@ -252,7 +296,7 @@ class KodiMock(object):
                 return info.get(label, "")
 
             def getLocalizedString(self, id):
-                return "string-{}".format(id)
+                return mock.strings.get(id, f"string-{id}")
 
             def getSetting(self, key):
                 return self._settings.get(key, "")
@@ -299,7 +343,7 @@ class KodiMock(object):
         class ListItem(MockListItem):
             pass
 
-        class Window(object):
+        class Window:
             def __init__(self, windowId=-1):
                 self.windowId = windowId
 
@@ -355,11 +399,11 @@ class KodiMock(object):
         def copy(src, dst):
             shutil.copyfile(src, dst)
 
-        class File(object):
+        class File:
             def __init__(self, path, mode="r"):
                 self.path = path
                 self.mode = mode
-                self._file = open(path, mode if "b" in mode else mode + "b")
+                self._file = open(path, mode if "b" in mode else mode + "b")  # noqa: SIM115
 
             def read(self):
                 return self._file.read()
@@ -379,7 +423,7 @@ class KodiMock(object):
             def __exit__(self, *args):
                 self.close()
 
-        class Stat(object):
+        class Stat:
             def __init__(self, path):
                 self._stat = os.stat(path)
 
@@ -425,7 +469,9 @@ class KodiMock(object):
         def setPluginCategory(handle, category):
             pass
 
-        def endOfDirectory(handle, succeeded=True, updateListing=False, cacheToDisc=True):
+        def endOfDirectory(
+            handle, succeeded=True, updateListing=False, cacheToDisc=True
+        ):
             pass
 
         xbmcplugin.addDirectoryItem = addDirectoryItem

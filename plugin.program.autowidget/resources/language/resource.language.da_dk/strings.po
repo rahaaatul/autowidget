@@ -903,3 +903,13 @@ msgstr "Sikkerhedskopierer filer..."
 msgctxt "#30166"
 msgid "Backup complete."
 msgstr "Sikkerhedskopiering fuldført"
+
+#: /resources/settings.xml:18
+msgctxt "#30167"
+msgid "Refresh Widgets During Video Playback"
+msgstr "Opdater widgets under videoafspilning"
+
+#: /resources/lib/menu.py:194
+msgctxt "#30168"
+msgid "Paths"
+msgstr "Stier"

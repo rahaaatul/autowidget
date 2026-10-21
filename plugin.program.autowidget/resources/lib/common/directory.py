@@ -1,12 +1,10 @@
+import sys
+from urllib.parse import urlencode
+
 import xbmcgui
 import xbmcplugin
 
-import sys
-
-from resources.lib.common import settings
-from resources.lib.common import utils
-
-from urllib.parse import urlencode
+from resources.lib.common import settings, utils
 
 _sort_methods = [
     xbmcplugin.SORT_METHOD_UNSORTED,
@@ -68,28 +66,6 @@ info_types.update(
 info_types.update(dict.fromkeys(["music", "song", "album", "artist"], "music"))
 
 
-def add_separator(title="", char="-", sort=""):
-    _window = utils.get_active_window()
-    sync = utils.get_art("sync")
-
-    props = None
-    if sort:
-        props = {"specialsort": sort}
-
-    if _window != "media":
-        return
-
-    if title:
-        if isinstance(title, int):
-            title = utils.get_string(title)
-
-        split = (len(title) + 2) / 2
-        edge = char * int(40 - split)
-        add_menu_item(title="{0} {1} {0}".format(edge, title), art=sync, props=props)
-    else:
-        add_menu_item(title=char * 80, art=sync, props=props)
-
-
 def add_sort_methods(handle):
     for method in _sort_methods:
         xbmcplugin.addSortMethod(handle, method)
@@ -148,7 +124,7 @@ def add_menu_item(
     if params is not None and isinstance(params, dict):
         encode = {k: v for k, v in params.items() if k not in _exclude_params}
 
-        _plugin += "?{}".format(urlencode(encode))
+        _plugin += f"?{urlencode(encode)}"
 
         for param in _exclude_params:
             _plugin += "&{}={}".format(param, params.get(param, ""))
@@ -212,7 +188,7 @@ def add_menu_item(
                         if len(value[d]) > 0:
                             item.addStreamInfo(d, value[d][0])
                 else:
-                    utils.log("Unknown dict-typed info key encountered: {}".format(key))
+                    utils.log(f"Unknown dict-typed info key encountered: {key}")
             else:
                 if key == "mimetype":
                     item.setMimeType(value)
@@ -223,11 +199,7 @@ def add_menu_item(
                     # return it as a "[HH:]MM:SS" string instead.
                     new_value = parse_duration(value)
                 else:
-                    new_value = (
-                        value
-                        if isinstance(value, (int, float))
-                        else str(value)
-                    )
+                    new_value = value if isinstance(value, (int, float)) else str(value)
             if new_value is not None:
                 valid_keys = _translations.get(info_types.get(mediatype, ""), {})
                 new_key = valid_keys.get(key, key)
@@ -274,8 +246,8 @@ def add_menu_item(
                             info.get("label", ""),
                         )
 
-        if not any([art.get(i) for i in ["landscape", "poster"]]) and all(
-            [art.get(i) for i in ["thumb", "fanart"]]
+        if not any(art.get(i) for i in ["landscape", "poster"]) and all(
+            art.get(i) for i in ["thumb", "fanart"]
         ):
             art["landscape"] = art["thumb"]
         item.setArt(art)
@@ -294,13 +266,12 @@ def make_library_path(library, type, id):
     if not library or not type or id == -1:
         return ""
 
-    path = "{}db://".format(library)
+    path = f"{library}db://"
     if library == "video":
         if type == "tvshow":
-            path = "{}{}s/titles/{}".format(path, type, id)
-    elif library == "music":
-        if type in ["artist", "album"]:
-            path = "{}{}s/{}/".format(path, type, id)
+            path = f"{path}{type}s/titles/{id}"
+    elif library == "music" and type in ["artist", "album"]:
+        path = f"{path}{type}s/{id}/"
     return path
 
 
