@@ -910,3 +910,13 @@ msgstr "Η λήψη αντιγράφου ασφαλείας ολοκληρώθη
 msgctxt "#30167"
 msgid "Refresh Widgets During Video Playback"
 msgstr "Ανανέωση widgets κατά την αναπαραγωγή βίντεο"
+
+#: /resources/lib/menu.py:194
+msgctxt "#30168"
+msgid "Paths"
+msgstr "Διαδρομές"
+
+#: /resources/lib/menu.py:194
+msgctxt "#30169"
+msgid "{} (Merged)"
+msgstr "{} (Συγχωνευμένα)"

@@ -35,6 +35,10 @@ A group can hold more than one list ("path"). In your skin, point a widget at `A
 * **Cycling** periodically moves to another path of the group, either the next one or a random one. The interval is set in the add-on settings.
 * **Merged** combines all paths of the group into a single list.
 
+A merged widget uses all the paths of its group, the add-on never asks which
+ones to use.  To merge only some of them, open the widget in `Add-ons >
+AutoWidgets > Active Widgets`, open its context menu and choose `Paths`.
+
 To add a whole folder of lists to a group at once, use `Add to AutoWidget Group > Explode menu to Group`.
 
 For a more detailed guide, check out [the wiki](https://github.com/drinfernoo/plugin.program.autowidget/wiki/How-to-Use-AutoWidget)!
@@ -51,7 +55,7 @@ A widget is requested with `widget=true` in the plugin url:
 plugin://plugin.program.autowidget/?mode=path&group={group}&action=static&widget=true
 ```
 
-Skins that support the [Skin Shortcuts](https://github.com/MikeSiLVO/script.skinshortcuts) add-on do not need the parameter, AutoWidget detects that it is rendered by a shortcut on its own.  A skin can also opt in by setting the `AutoWidget.WidgetMode` property on the home window.
+Skins that support the [Skin Shortcuts](https://github.com/MikeSiLVO/script.skinshortcuts) add-on can set the parameter once in the shortcut of the widget.  A skin can also opt in by setting the `AutoWidget.WidgetMode` property on the home window.
 
 ## YouTube Playlist
 ---

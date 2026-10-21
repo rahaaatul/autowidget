@@ -908,3 +908,13 @@ msgstr "Sikkerhedskopiering fuldført"
 msgctxt "#30167"
 msgid "Refresh Widgets During Video Playback"
 msgstr "Opdater widgets under videoafspilning"
+
+#: /resources/lib/menu.py:194
+msgctxt "#30168"
+msgid "Paths"
+msgstr "Stier"
+
+#: /resources/lib/menu.py:194
+msgctxt "#30169"
+msgid "{} (Merged)"
+msgstr "{} (Flet)"

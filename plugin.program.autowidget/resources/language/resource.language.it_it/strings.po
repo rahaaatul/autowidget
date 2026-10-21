@@ -912,3 +912,13 @@ msgstr "Backup completato."
 msgctxt "#30167"
 msgid "Refresh Widgets During Video Playback"
 msgstr "Aggiorna i widget durante la riproduzione video"
+
+#: /resources/lib/menu.py:194
+msgctxt "#30168"
+msgid "Paths"
+msgstr "Percorsi"
+
+#: /resources/lib/menu.py:194
+msgctxt "#30169"
+msgid "{} (Merged)"
+msgstr "{} (Uniti)"

@@ -905,3 +905,13 @@ msgstr "Copia de seguridad completada."
 msgctxt "#30167"
 msgid "Refresh Widgets During Video Playback"
 msgstr "Actualizar widgets durante la reproducción de vídeo"
+
+#: /resources/lib/menu.py:194
+msgctxt "#30168"
+msgid "Paths"
+msgstr "Rutas"
+
+#: /resources/lib/menu.py:194
+msgctxt "#30169"
+msgid "{} (Merged)"
+msgstr "{} (Combinados)"

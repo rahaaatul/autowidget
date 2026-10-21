@@ -165,12 +165,15 @@ def active_widgets_menu():
 
             title = ""
             label = group_def.get("label", "")
-            if path_def and group_def:
+            if action == "merged":
+                # A merged widget merges the paths of its group, it has no
+                # path of its own to show.
+                title = utils.get_string(30169).format(
+                    utils.to_text(group_def.get("label", ""))
+                )
+            elif path_def and group_def:
                 try:
-                    if action != "merged":
-                        label = path_def.get("label", "").encode("utf-8")
-                    else:
-                        label = utils.get_string(30101).format(len(path_id))
+                    label = path_def.get("label", "").encode("utf-8")
                 except Exception:
                     pass
 
@@ -201,6 +204,18 @@ def active_widgets_menu():
                     )
                 elif action == "merged":
                     art = merge
+                    cm.append(
+                        (
+                            utils.get_string(30168),
+                            (
+                                "RunPlugin("
+                                "plugin://plugin.program.autowidget/"
+                                "?mode=manage"
+                                "&action=edit_merged"
+                                f"&id={widget_id})"
+                            ),
+                        )
+                    )
                 elif action == "static":
                     art = utils.get_art("folder")
 
@@ -564,21 +579,14 @@ def merged_path(group_id, widget_id):
     if widget_def and _window != "dialog":
         paths = widget_def["path"]
     elif not widget_def:
-        if utils.is_widget_mode():
-            # A dialog on top of a skin widget is intrusive, all the paths
-            # of the group are merged instead.
-            widget_def = manage.initialize(
-                group_def, "merged", widget_id, keep=list(range(len(paths)))
-            )
-            paths = widget_def["path"]
-        else:
-            idxs = manage.choose_paths(utils.get_string(30088), paths, 5)
-
-            if idxs is not None and len(idxs) > 0:
-                widget_def = manage.initialize(
-                    group_def, "merged", widget_id, keep=idxs
-                )
-                paths = widget_def["path"]
+        # All the paths of the group are merged, the selection can be
+        # changed later with the "Edit Merged Widget" action of the widget.
+        # Asking for the paths here would be intrusive, the dialog would
+        # show up over the skin widget on every start of Kodi.
+        widget_def = manage.initialize(
+            group_def, "merged", widget_id, keep=list(range(len(paths)))
+        )
+        paths = widget_def["path"]
 
     if widget_def:
         titles = []

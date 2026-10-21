@@ -562,3 +562,38 @@ def edit_widget_dialog(widget_id):
         manage.save_path_details(widget_def)
         utils.update_container(True)
         edit_widget_dialog(widget_id)
+
+
+def edit_merged_widget(widget_id):
+    """Change the paths a merged widget merges.
+
+    Only the paths of this widget are changed, the other widgets of the
+    group keep the paths they have.
+    """
+    widget_def = manage.get_widget_by_id(widget_id)
+    if not widget_def:
+        return
+
+    group_def = manage.get_group_by_id(widget_def.get("group", ""))
+    if not group_def:
+        return
+
+    paths = group_def.get("paths", [])
+    if not paths:
+        return
+
+    current = widget_def.get("path", [])
+    if isinstance(current, dict):
+        current = [current.get("id", "")]
+
+    preselect = [
+        idx for idx, path in enumerate(paths) if path.get("id", "") in current
+    ]
+
+    idxs = manage.choose_paths(utils.get_string(30088), paths, preselect=preselect)
+    if not idxs:
+        return
+
+    widget_def["path"] = [paths[idx]["id"] for idx in idxs]
+    manage.save_path_details(widget_def)
+    utils.update_container(True)

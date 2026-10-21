@@ -56,6 +56,8 @@ def dispatch(_handle, _params):
             edit.edit_dialog(group, path_id)
         elif action == "edit_widget":
             edit.edit_widget_dialog(widget_id)
+        elif action == "edit_merged":
+            edit.edit_merged_widget(widget_id)
         elif action == "copy" and group and target:
             add.copy_group(group, target)
     elif mode == "group":

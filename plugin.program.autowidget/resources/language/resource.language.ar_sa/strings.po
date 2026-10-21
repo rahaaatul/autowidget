@@ -895,3 +895,13 @@ msgstr "اكتمال النسخ الاحتياطي."
 msgctxt "#30167"
 msgid "Refresh Widgets During Video Playback"
 msgstr "تحديث الأدوات أثناء تشغيل الفيديو"
+
+#: /resources/lib/menu.py:194
+msgctxt "#30168"
+msgid "Paths"
+msgstr "المسارات"
+
+#: /resources/lib/menu.py:194
+msgctxt "#30169"
+msgid "{} (Merged)"
+msgstr "{} (مدمج)"

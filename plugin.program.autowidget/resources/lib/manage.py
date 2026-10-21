@@ -256,6 +256,7 @@ def choose_paths(
     threshold=None,
     indices=True,
     single=False,
+    preselect=None,
 ):
     if label is None:
         label = utils.get_string(30121)
@@ -278,16 +279,17 @@ def choose_paths(
             [i["label"] for i in paths],
         )
     else:
+        if preselect is not None:
+            default = list(preselect)
+        elif threshold is None or threshold == -1 or len(paths) <= threshold:
+            default = list(range(len(paths)))
+        else:
+            default = []
+
         idxs = dialog.multiselect(
             label,
             [i["label"] for i in paths],
-            preselect=(
-                list(range(len(paths)))
-                if len(paths) <= threshold or threshold == -1
-                else []
-            )
-            if threshold is not None
-            else list(range(len(paths))),
+            preselect=default,
         )
     del dialog
 

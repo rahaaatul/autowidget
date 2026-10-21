@@ -9,10 +9,40 @@ handed over to Kodi.
 
 import json
 import os
+import re
 import shutil
 import sys
 import tempfile
 import types
+
+
+def _load_strings():
+    """The English strings of the add-on.
+
+    The tests assert on the labels the user sees, so the mock returns the
+    real strings instead of a placeholder.
+    """
+    addon_dir = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "plugin.program.autowidget",
+    )
+    po_file = os.path.join(
+        addon_dir, "resources", "language", "resource.language.en_gb", "strings.po"
+    )
+    if not os.path.isfile(po_file):
+        return {}
+
+    with open(po_file, encoding="utf-8", newline="") as f:
+        content = f.read().replace("\r\n", "\n")
+
+    strings = {}
+    parts = re.split(r'msgctxt "#(\d+)"\n', content)
+    for i in range(1, len(parts), 2):
+        body = parts[i + 1].split("\n#:")[0].split("\nmsgctxt")[0]
+        match = re.search(r'msgstr((?:\s*"[^"]*")+)', body)
+        if match:
+            strings[int(parts[i])] = "".join(re.findall(r'"([^"]*)"', match.group(1)))
+    return strings
 
 
 class MockListItem:
@@ -28,6 +58,7 @@ class MockListItem:
         self.uniqueids = {}
         self.cast = None
         self.mimetype = None
+        self.context_menu = []
         self.stream_info = []
 
     def setInfo(self, type, infoLabels):
@@ -55,7 +86,7 @@ class MockListItem:
         self.stream_info.append((type, values))
 
     def addContextMenuItems(self, items, replaceItems=False):
-        pass
+        self.context_menu.extend(items)
 
     def __repr__(self):
         return f"<MockListItem {self.label!r}>"
@@ -78,6 +109,7 @@ class MockDialog:
         return self._mock.dialog_answers.get("select", -1)
 
     def multiselect(self, *args, **kwargs):
+        self._mock.dialog_calls.append(("multiselect", args, kwargs))
         return self._mock.dialog_answers.get("multiselect", None)
 
     def browse(self, *args, **kwargs):
@@ -119,6 +151,8 @@ class KodiMock:
         self.jsonrpc_handler = None
         self.modules = {}
         self.builtins = []
+        self.dialog_calls = []
+        self.strings = _load_strings()
 
     # -- helpers --------------------------------------------------------
     def set_info_label(self, label, value):
@@ -262,7 +296,7 @@ class KodiMock:
                 return info.get(label, "")
 
             def getLocalizedString(self, id):
-                return f"string-{id}"
+                return mock.strings.get(id, f"string-{id}")
 
             def getSetting(self, key):
                 return self._settings.get(key, "")

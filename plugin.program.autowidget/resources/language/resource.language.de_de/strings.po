@@ -911,3 +911,13 @@ msgstr "備份完成。"
 msgctxt "#30167"
 msgid "Refresh Widgets During Video Playback"
 msgstr "Widgets während der Videowiedergabe aktualisieren"
+
+#: /resources/lib/menu.py:194
+msgctxt "#30168"
+msgid "Paths"
+msgstr "Pfade"
+
+#: /resources/lib/menu.py:194
+msgctxt "#30169"
+msgid "{} (Merged)"
+msgstr "{} (Zusammengeführt)"

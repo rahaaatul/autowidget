@@ -940,3 +940,13 @@ msgstr "Sauvegarde achevée."
 msgctxt "#30167"
 msgid "Refresh Widgets During Video Playback"
 msgstr "Actualiser les widgets pendant la lecture vidéo"
+
+#: /resources/lib/menu.py:194
+msgctxt "#30168"
+msgid "Paths"
+msgstr "Chemins"
+
+#: /resources/lib/menu.py:194
+msgctxt "#30169"
+msgid "{} (Merged)"
+msgstr "{} (Fusionnés)"
