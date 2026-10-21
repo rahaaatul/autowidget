@@ -61,6 +61,11 @@
               "type": "build",
               "hidden": false,
               "section": "Continuous Integration"
+            },
+            {
+              "type": "ci",
+              "section": "Continuous Integration",
+              "hidden": false
             }
           ]
         }
