@@ -10,6 +10,8 @@ __pycache__/
 /scripts/
 !/.github/scripts/
 !/.github/scripts/**
+/.github/scripts/**/__pycache__/
+/.github/scripts/**/*.pyc
 Thumbs.db
 *~
 .cache
