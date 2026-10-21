@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.program.autowidget" name="AutoWidget" version="1.0.0~dev.1" provider-name="rahaaatul">
+<addon id="plugin.program.autowidget" name="AutoWidget" version="1.0.0~dev.2" provider-name="rahaaatul">
     <requires>
         <import addon="xbmc.python" version="3.0.1" />
         <import addon="script.module.pil" />
@@ -43,6 +43,13 @@
         <website>https://github.com/rahaaatul/</website>
         <source>https://github.com/rahaaatul/autowidget/</source>
         <news>
+1.0.0~dev.2
+✨ New Features
+  - **widget:** add a widget mode for skin widgets ([e9f5cd1](https://github.com/rahaaatul/autowidget/commit/e9f5cd1f8fb7645360b02c6fb470ba46ae5a1f21))
+
+🐛 Bug Fixes
+  - **cache:** keep the service alive when a path can not be updated ([e4a74e4](https://github.com/rahaaatul/autowidget/commit/e4a74e48d146abe7439d353413f4985ca7948cf7))
+
 1.0.0~dev.1
 ⚠ BREAKING CHANGES
   - target Kodi 21.3 (Omega) only and drop the six dependency

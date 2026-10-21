@@ -1,3 +1,13 @@
+## [1.0.0-dev.2](https://github.com/rahaaatul/autowidget/compare/v1.0.0-dev.1...v1.0.0-dev.2) (2026-10-21)
+
+### ✨ New Features
+
+* **widget:** add a widget mode for skin widgets ([e9f5cd1](https://github.com/rahaaatul/autowidget/commit/e9f5cd1f8fb7645360b02c6fb470ba46ae5a1f21))
+
+### 🐛 Bug Fixes
+
+* **cache:** keep the service alive when a path can not be updated ([e4a74e4](https://github.com/rahaaatul/autowidget/commit/e4a74e48d146abe7439d353413f4985ca7948cf7))
+
 ## 1.0.0-dev.1 (2026-10-21)
 
 ### ⚠ BREAKING CHANGES
