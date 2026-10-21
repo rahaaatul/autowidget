@@ -1,6 +1,6 @@
 # AutoWidget
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/840a4c0ed72e4d25b3d82c984e3c4b84)](https://app.codacy.com/manual/drinfernoo/plugin.program.autowidget?utm_source=github.com&utm_medium=referral&utm_content=drinfernoo/plugin.program.autowidget&utm_campaign=Badge_Grade_Dashboard)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/840a4c0ed72e4d25b3d82c984e3c4b84)](https://app.codacy.com/manual/rahaaatul/autowidget?utm_source=github.com&utm_medium=referral&utm_content=rahaaatul/autowidget&utm_campaign=Badge_Grade_Dashboard)
 [![Build pull request](https://github.com/rahaaatul/autowidget/actions/workflows/build_pull_request.yml/badge.svg)](https://github.com/rahaaatul/autowidget/actions/workflows/build_pull_request.yml)
 
 AutoWidget is a program add-on for Kodi, designed to give a more dynamic and interesting experience to using skin widgets.
@@ -38,6 +38,20 @@ A group can hold more than one list ("path"). In your skin, point a widget at `A
 To add a whole folder of lists to a group at once, use `Add to AutoWidget Group > Explode menu to Group`.
 
 For a more detailed guide, check out [the wiki](https://github.com/drinfernoo/plugin.program.autowidget/wiki/How-to-Use-AutoWidget)!
+
+AutoWidget is a fork of [drinfernoo's add-on](https://github.com/drinfernoo/plugin.program.autowidget), which is where the original documentation lives.
+
+## Skin Widgets
+---
+A skin widget is a small list on the home screen of a skin.  AutoWidget knows when it is rendered inside such a widget and behaves differently: the management actions of the add-on are not useful there and dialogs are intrusive, so they are skipped.
+
+A widget is requested with `widget=true` in the plugin url:
+
+```
+plugin://plugin.program.autowidget/?mode=path&group={group}&action=static&widget=true
+```
+
+Skins that support the [Skin Shortcuts](https://github.com/MikeSiLVO/script.skinshortcuts) add-on do not need the parameter, AutoWidget detects that it is rendered by a shortcut on its own.  A skin can also opt in by setting the `AutoWidget.WidgetMode` property on the home window.
 
 ## YouTube Playlist
 ---
