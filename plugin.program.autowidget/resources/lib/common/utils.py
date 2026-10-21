@@ -424,10 +424,29 @@ def get_active_window():
         pass
 
 
+def in_plugin_container():
+    """True when the AutoWidget plugin container is the one on screen."""
+    return (
+        get_active_window() == "media"
+        and get_infolabel("Container.PluginName") == _addon_id
+    )
+
+
+def refresh_plugin_container():
+    """Reload the AutoWidget container when it is the one on screen.
+
+    This is what replaces the "Loading content..." placeholder as soon as the
+    background refresh has written the cache. Without it the placeholder
+    stays on screen until the user navigates away from the container and back.
+    """
+    if in_plugin_container():
+        xbmc.executebuiltin("Container.Refresh()")
+
+
 def update_container(reload=False):
     refresh_time = os.path.join(_addon_data, "refresh.time")
     in_media = get_active_window() == "media"
-    in_plugin = in_media and get_infolabel("Container.PluginName") == _addon_id
+    in_plugin = in_plugin_container()
     is_scanning = get_condition("Library.IsScanningVideo") or get_condition(
         "Library.IsScanningMusic"
     )

@@ -185,11 +185,14 @@ class RefreshService(xbmc.Monitor):
                 if not widget_def:
                     continue
                 _update_strings(widget_def)
-            if (
-                xbmcvfs.exists(os.path.join(_addon_data, "refresh.time"))
-                and utils.get_active_window() == "home"
-            ):
-                utils.update_container(True)
+            if xbmcvfs.exists(os.path.join(_addon_data, "refresh.time")):
+                if utils.get_active_window() == "home":
+                    utils.update_container(True)
+                else:
+                    # Reload the container when the widget is on screen in a
+                    # media window, otherwise the "Loading content..."
+                    # placeholder stays until the user navigates away and back.
+                    utils.refresh_plugin_container()
             # # if progress.dialog is not None:
             # #     progress.dialog.update(100)
             # #     progress.dialog.close()

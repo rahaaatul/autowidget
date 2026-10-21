@@ -144,3 +144,52 @@ def test_clean_artwork_url_strips_the_image_wrapper():
         utils.clean_artwork_url("image:///tmp/poster.jpg@320x320")
         == "image:///tmp/poster.jpg@320x320"
     )
+
+
+def test_refresh_plugin_container_reloads_the_autowidget_container(monkeypatch):
+    builtins = []
+    monkeypatch.setattr(
+        utils.xbmc,
+        "executebuiltin",
+        lambda command, wait=False: builtins.append(command),
+    )
+    monkeypatch.setattr(utils, "get_active_window", lambda: "media")
+    monkeypatch.setattr(
+        utils, "get_infolabel", lambda label: "plugin.program.autowidget"
+    )
+
+    utils.refresh_plugin_container()
+
+    assert builtins == ["Container.Refresh()"]
+
+
+def test_refresh_plugin_container_does_nothing_for_other_containers(monkeypatch):
+    builtins = []
+    monkeypatch.setattr(
+        utils.xbmc,
+        "executebuiltin",
+        lambda command, wait=False: builtins.append(command),
+    )
+    monkeypatch.setattr(utils, "get_active_window", lambda: "media")
+    monkeypatch.setattr(utils, "get_infolabel", lambda label: "plugin.video.other")
+
+    utils.refresh_plugin_container()
+
+    assert builtins == []
+
+
+def test_refresh_plugin_container_does_nothing_outside_a_media_window(monkeypatch):
+    builtins = []
+    monkeypatch.setattr(
+        utils.xbmc,
+        "executebuiltin",
+        lambda command, wait=False: builtins.append(command),
+    )
+    monkeypatch.setattr(utils, "get_active_window", lambda: "home")
+    monkeypatch.setattr(
+        utils, "get_infolabel", lambda label: "plugin.program.autowidget"
+    )
+
+    utils.refresh_plugin_container()
+
+    assert builtins == []
