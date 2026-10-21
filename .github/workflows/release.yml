@@ -157,7 +157,22 @@ jobs:
           ref: main
           fetch-depth: 0
 
+      - name: Check for differences
+        id: diff
+        run: |
+          set -euo pipefail
+          git fetch --quiet origin main dev
+          if [ -z "$(git log --oneline origin/dev..origin/main)" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "dev already contains main, no back-merge is needed"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Open back-merge pull request
+        id: backmerge
+        if: steps.diff.outputs.changed == 'true'
+        continue-on-error: true
         uses: repo-sync/pull-request@v2
         with:
           source_branch: main
@@ -166,6 +181,13 @@ jobs:
           pr_body: |
             This pull request back-merges `main` into `dev` after a release.
           pr_draft: true
+
+      - name: Report the result
+        if: steps.diff.outputs.changed == 'true' && steps.backmerge.outcome == 'failure'
+        run: |
+          echo "::warning::The back-merge pull request could not be created. Enable" \
+            "'Allow GitHub Actions to create and approve pull requests' in the" \
+            "repository settings (Settings > Actions > General > Workflow permissions)."
 
   publish:
     name: Publish to the Kodi repository

@@ -99,5 +99,7 @@ Releasing is done by pushing a tag, for example `git tag v1.0.0 && git push orig
 
 The version line of this repository starts at `1.0.0`; the historic changelog of the upstream releases is kept in the `news` section of `addon.xml`.
 
+The workflows that open pull requests (`open_pull_request.yml` and the back-merge job of `release.yml`) need the repository setting **Settings > Actions > General > Workflow permissions > Allow GitHub Actions to create and approve pull requests**. Without it the `GITHUB_TOKEN` is not allowed to create pull requests and the workflow reports a warning instead of failing.
+
 
 
