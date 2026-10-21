@@ -1,3 +1,9 @@
+## [1.1.0-dev.1](https://github.com/rahaaatul/autowidget/compare/v1.0.0...v1.1.0-dev.1) (2026-10-21)
+
+### ✨ New Features
+
+* **menu:** sort the items of a merged widget ([809c476](https://github.com/rahaaatul/autowidget/commit/809c47622b6ac35fe6ab634527c2bf86953ec3ca))
+
 ## 1.0.0 (2026-10-21)
 
 ### ⚠ BREAKING CHANGES

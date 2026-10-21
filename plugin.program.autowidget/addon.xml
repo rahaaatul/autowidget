@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.program.autowidget" name="AutoWidget" version="1.0.0" provider-name="rahaaatul">
+<addon id="plugin.program.autowidget" name="AutoWidget" version="1.1.0~dev.1" provider-name="rahaaatul">
     <requires>
         <import addon="xbmc.python" version="3.0.1" />
         <import addon="script.module.pil" />
@@ -43,6 +43,10 @@
         <website>https://github.com/rahaaatul/</website>
         <source>https://github.com/rahaaatul/autowidget/</source>
         <news>
+1.1.0~dev.1
+✨ New Features
+  - **menu:** sort the items of a merged widget ([809c476](https://github.com/rahaaatul/autowidget/commit/809c47622b6ac35fe6ab634527c2bf86953ec3ca))
+
 1.0.0
 ⚠ BREAKING CHANGES
   - target Kodi 21.3 (Omega) only and drop the six dependency
