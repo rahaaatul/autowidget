@@ -9,13 +9,19 @@ on:
 env:
   MESSAGE: Merge branch `${{ github.head_ref || github.ref_name }}` to `main`
 
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: open-pr-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   pull-request:
     name: Open pull request
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,6 +29,7 @@ jobs:
       - name: Open pull request
         uses: repo-sync/pull-request@v2
         with:
+          source_branch: ${{ github.ref_name }}
           destination_branch: main
           pr_title: 'chore: ${{ env.MESSAGE }}'
           pr_body: |

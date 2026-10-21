@@ -123,6 +123,56 @@ def check_compilation(addon_dir: Path, report: Report) -> None:
         report.error(f"Python sources in {addon_dir} failed to compile")
 
 
+def check_zip(zip_path: Path, expected_version: str | None, report: Report) -> None:
+    """Validate a built add-on zip the way Kodi consumes it."""
+    import zipfile
+
+    if not zip_path.is_file():
+        report.error(f"Add-on zip not found: {zip_path}")
+        return
+
+    with zipfile.ZipFile(zip_path) as archive:
+        names = archive.namelist()
+        roots = {name.split("/")[0] for name in names}
+        if len(roots) != 1:
+            report.error(f"{zip_path}: the zip must contain a single add-on folder, got {roots}")
+            return
+
+        root = roots.pop()
+
+        addon_xml_name = f"{root}/addon.xml"
+        if addon_xml_name not in names:
+            report.error(f"{zip_path}: addon.xml is missing")
+            return
+
+        addon_xml = ET.fromstring(archive.read(addon_xml_name))
+        if addon_xml.get("id") != root:
+            report.error(
+                f"{zip_path}: the folder name {root!r} does not match the add-on id "
+                f"{addon_xml.get('id')!r}"
+            )
+
+        version = addon_xml.get("version") or ""
+        if expected_version and version != expected_version:
+            report.error(
+                f"{zip_path}: the version in addon.xml is {version!r}, expected {expected_version!r}"
+            )
+        if version == "CURRENT_VERSION":
+            report.error(f"{zip_path}: the version placeholder was not replaced")
+
+        if root == ADDON_ID:
+            required_assets = ("resources/media/icon.png", "resources/media/fanart.png")
+        else:
+            required_assets = ("icon.png",)
+        for asset in required_assets:
+            if f"{root}/{asset}" not in names:
+                report.error(f"{zip_path}: missing {asset}")
+
+        for name in names:
+            if name.endswith("/") or "__pycache__" in name or name.endswith(".pyc"):
+                report.error(f"{zip_path}: unexpected file {name}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -130,6 +180,8 @@ def main() -> int:
         default=str(Path(__file__).resolve().parents[2] / ADDON_ID),
         help="Path to the add-on source directory",
     )
+    parser.add_argument("--zip", help="Also validate a built add-on zip")
+    parser.add_argument("--version", help="Version expected inside the built zip")
     args = parser.parse_args()
 
     addon_dir = Path(args.addon_path)
@@ -141,6 +193,9 @@ def main() -> int:
         check_addon_xml(addon_dir / "addon.xml", report)
         check_strings(addon_dir, report)
         check_compilation(addon_dir, report)
+
+    if args.zip:
+        check_zip(Path(args.zip), args.version, report)
 
     for warning in report.warnings:
         print(f"warning: {warning}")
