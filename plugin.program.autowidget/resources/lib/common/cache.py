@@ -112,13 +112,12 @@ def cache_and_update(path, widget_id, cache_data, notify=None):
     or is expired and if so force it to be refreshed. When going through the queue this
     could mean we refresh paths that other widgets also use. These will then be skipped.
     """
-    assert widget_id
-    assert cache_data.get("path") == path
-    assert widget_id in cache_data["widgets"]
+    if not cache_data:
+        cache_data = read_history(path)
 
-    hash = path2hash(path)
-    # if not is_cache_queue(hash):
-    #     return []
+    widgets = cache_data.setdefault("widgets", [])
+    if widget_id and widget_id not in widgets:
+        widgets.append(widget_id)
 
     if notify is not None:
         widget_def = manage.get_widget_by_id(widget_id)
@@ -129,7 +128,7 @@ def cache_and_update(path, widget_id, cache_data, notify=None):
 
     # TODO: this is all widgets that ever requested this path. do we
     # need to update all of them?
-    return cache_data["widgets"] if files_changed else []
+    return widgets if files_changed else []
 
 
 def cache_files(path, widget_id):
@@ -168,7 +167,7 @@ def cache_expiry(path, widget_id, add=None, background=True):
 
     history = cache_data.setdefault("history", [])
     widgets = cache_data.setdefault("widgets", [])
-    if widget_id not in widgets:
+    if widget_id and widget_id not in widgets:
         widgets.append(widget_id)
 
     expiry = time.time() - 20
@@ -210,7 +209,7 @@ def cache_expiry(path, widget_id, add=None, background=True):
             result = "Empty"
             if background:
                 contents = utils.make_holding_path(utils.get_string(30143), "refresh")
-                push_cache_queue(path)
+                push_cache_queue(path, widget_id)
         else:
             contents = utils.read_json(cache_path, log_file=True)
             if contents is None:
@@ -219,7 +218,7 @@ def cache_expiry(path, widget_id, add=None, background=True):
                     contents = utils.make_holding_path(
                         utils.get_string(30137).format(hash), "alert"
                     )
-                    push_cache_queue(path)
+                    push_cache_queue(path, widget_id)
             else:
                 size = len(json.dumps(contents))
                 if history:
@@ -238,7 +237,7 @@ def cache_expiry(path, widget_id, add=None, background=True):
                 #     result = "Skip (queue={})".format(queue_len)
                 #     contents = dict(result=dict(files=[]))
                 else:
-                    push_cache_queue(path)
+                    push_cache_queue(path, widget_id)
                     result = "Read and queue"
     # TODO: some metric that tells us how long to the first and last widgets becomes visible and then get updated
     # not how to measure the time delay when when the cache is read until it appears on screen?

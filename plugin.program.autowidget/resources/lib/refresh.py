@@ -8,6 +8,7 @@ import random
 import time
 import threading
 import queue
+import traceback
 
 from resources.lib import manage
 from resources.lib.common import cache
@@ -153,13 +154,20 @@ class RefreshService(xbmc.Monitor):
 
             utils.log("Dequeued cache update: {} {}".format(hash[:5], path), "notice")
 
-            affected_widgets = set(
-                cache.cache_and_update(
-                    path,
-                    widget_id,
-                    cache_data,  # notify=progress
+            try:
+                affected_widgets = set(
+                    cache.cache_and_update(
+                        path,
+                        widget_id,
+                        cache_data,  # notify=progress
+                    )
                 )
-            )
+            except Exception:
+                # A path that can not be updated must not stop the queue, the
+                # widget would keep showing "Loading content..." forever.
+                utils.log(traceback.format_exc(), "error")
+                continue
+
             if affected_widgets:
                 updated = True
             # unrefreshed_widgets = unrefreshed_widgets.union(affected_widgets)
