@@ -70,7 +70,7 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "python3 .github/scripts/build_addon.py --version ${nextRelease.version} --addon-path plugin.program.autowidget --output-dir dist && python3 .github/scripts/set_version.py --addon-xml plugin.program.autowidget/addon.xml --version ${nextRelease.version} --changelog CHANGELOG.md"
+        "prepareCmd": "python3 .github/scripts/build_addon.py --version ${nextRelease.version} --zip-version ${nextRelease.version} --addon-path plugin.program.autowidget --output-dir dist && python3 .github/scripts/set_version.py --addon-xml plugin.program.autowidget/addon.xml --version ${nextRelease.version} --changelog CHANGELOG.md"
       }
     ],
     [

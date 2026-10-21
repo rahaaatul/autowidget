@@ -64,7 +64,7 @@ def iter_files(root: Path):
         yield path
 
 
-def build(addon_path: Path, version: str, output_dir: Path) -> Path:
+def build(addon_path: Path, version: str, output_dir: Path, zip_version: str | None = None) -> Path:
     if not addon_path.is_dir():
         raise SystemExit(f"Add-on directory not found: {addon_path}")
 
@@ -85,7 +85,7 @@ def build(addon_path: Path, version: str, output_dir: Path) -> Path:
     )
     set_version(target / "addon.xml", version)
 
-    zip_path = output_dir / f"{addon_id}-{version}.zip"
+    zip_path = output_dir / f"{addon_id}-{zip_version or version}.zip"
     if zip_path.exists():
         zip_path.unlink()
 
@@ -107,6 +107,10 @@ def main() -> int:
         help="Path to the add-on source directory",
     )
     parser.add_argument(
+        "--zip-version",
+        help="Version used in the file name of the zip (defaults to the add-on version)",
+    )
+    parser.add_argument(
         "--output-dir",
         default=str(repo_root / "dist"),
         help="Directory the zip file is written to",
@@ -114,7 +118,8 @@ def main() -> int:
     args = parser.parse_args()
 
     version = resolve_version(args.version)
-    zip_path = build(Path(args.addon_path), version, Path(args.output_dir))
+    zip_version = args.zip_version or version
+    zip_path = build(Path(args.addon_path), version, Path(args.output_dir), zip_version)
     print(f"Built {zip_path} (version {version})")
     return 0
 
