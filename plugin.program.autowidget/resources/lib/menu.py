@@ -19,7 +19,6 @@ remove = utils.get_art("remove")
 share = utils.get_art("share")
 shuffle = utils.get_art("shuffle")
 spray_bottle = utils.get_art("spray-bottle")
-sync = utils.get_art("sync")
 tools = utils.get_art("tools")
 unpack = utils.get_art("unpack")
 
@@ -717,7 +716,6 @@ def _create_action_items(group_def, _id):
     group_type = group_def["type"]
 
     if group_type == "widget":
-        directory.add_separator(title=30009, char="/", sort="bottom")
         directory.add_menu_item(
             title=utils.get_string(30053).format(str(group_name)),
             params={

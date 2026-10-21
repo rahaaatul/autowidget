@@ -66,28 +66,6 @@ info_types.update(
 info_types.update(dict.fromkeys(["music", "song", "album", "artist"], "music"))
 
 
-def add_separator(title="", char="-", sort=""):
-    _window = utils.get_active_window()
-    sync = utils.get_art("sync")
-
-    props = None
-    if sort:
-        props = {"specialsort": sort}
-
-    if _window != "media":
-        return
-
-    if title:
-        if isinstance(title, int):
-            title = utils.get_string(title)
-
-        split = (len(title) + 2) / 2
-        edge = char * int(40 - split)
-        add_menu_item(title=f"{edge} {title} {edge}", art=sync, props=props)
-    else:
-        add_menu_item(title=char * 80, art=sync, props=props)
-
-
 def add_sort_methods(handle):
     for method in _sort_methods:
         xbmcplugin.addSortMethod(handle, method)
