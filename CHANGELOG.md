@@ -1,3 +1,10 @@
+## [1.0.0-dev.4](https://github.com/rahaaatul/autowidget/compare/v1.0.0-dev.3...v1.0.0-dev.4) (2026-10-21)
+
+### 🐛 Bug Fixes
+
+* **edit:** resolve the widget paths by their id ([1a4f5ee](https://github.com/rahaaatul/autowidget/commit/1a4f5ee69b6bad1e722af353aa3437efbb69931e))
+* **menu:** drop the action separator from the group listing ([20c64e6](https://github.com/rahaaatul/autowidget/commit/20c64e6e774dc0ff7a197799dd7753b28cccd1de))
+
 ## [1.0.0-dev.3](https://github.com/rahaaatul/autowidget/compare/v1.0.0-dev.2...v1.0.0-dev.3) (2026-10-21)
 
 ### 🐛 Bug Fixes
