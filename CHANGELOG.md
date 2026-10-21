@@ -1,3 +1,9 @@
+## [1.0.0-dev.8](https://github.com/rahaaatul/autowidget/compare/v1.0.0-dev.7...v1.0.0-dev.8) (2026-10-21)
+
+### 🐛 Bug Fixes
+
+* **menu:** open the merged widget of the group in the merged entry ([ad4fb34](https://github.com/rahaaatul/autowidget/commit/ad4fb3407e96a798d4fc9a936426e1cbd33376a0))
+
 ## [1.0.0-dev.7](https://github.com/rahaaatul/autowidget/compare/v1.0.0-dev.6...v1.0.0-dev.7) (2026-10-21)
 
 ### 🐛 Bug Fixes
