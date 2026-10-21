@@ -36,3 +36,24 @@ def test_refresh_keeps_working_when_a_path_disappeared(monkeypatch):
     # The widget keeps its path, it is just not updated any more
     assert widget_def["path"] == "missing-path"
     assert saved == {}
+
+
+def test_player_type_is_always_defined():
+    """Playback can end without a start event reaching the service."""
+    assert refresh.Player().type == "unknown"
+
+
+def test_playback_ended_without_a_start_event_does_not_raise(monkeypatch):
+    saved = []
+    monkeypatch.setattr(
+        refresh.cache,
+        "save_playback_history",
+        lambda playback_type, percentage, path: saved.append(playback_type),
+    )
+    monkeypatch.setattr(refresh.cache, "widgets_changed_by_watching", lambda kind: [])
+
+    player = refresh.Player()
+    player.onPlayBackEnded()
+
+    assert saved == ["unknown"]
+    assert player.type == "unknown"

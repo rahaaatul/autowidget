@@ -452,6 +452,10 @@ class Player(xbmc.Player):
         self.playingTime = 0
         self.info = {}
         self.path = None
+        # Set in onPlayBackStarted, but playback can end without a start
+        # event reaching this instance (the service started mid playback for
+        # example), so it always has to hold a usable value.
+        self.type = "unknown"
 
     def playing_type(self):
         """
@@ -522,6 +526,8 @@ class Player(xbmc.Player):
         # Once a playback ends.
         # Work out which cached paths are most likely to change based on playback history
 
+        playback_type = self.type
+
         # Record playback in a history db so we can potentially use this for future predictions.
         try:
             tt = self.totalTime
@@ -534,18 +540,19 @@ class Player(xbmc.Player):
         self.totalTime = -1.0
         self.playingTime = 0.0
         self.info = {}
-        cache.save_playback_history(self.type, pp, self.path)
-        utils.log(f"recorded playback of {pp}% {self.type}", "notice")
+        cache.save_playback_history(playback_type, pp, self.path)
+        utils.log(f"recorded playback of {pp}% {playback_type}", "notice")
 
         # TODO: find which cache file has self.path in it. This probably would have changed
 
         # wait for a bit so scrobing can happen
         # time.sleep(5)
-        for _hash, path in cache.widgets_changed_by_watching(self.type):
+        for _hash, path in cache.widgets_changed_by_watching(playback_type):
             # Queue them for refresh
             cache.push_cache_queue(path)
             # utils.log("Queued cache update: {}".format(hash[:5]), "notice")
         # utils.update_container(reload=True)
+        self.type = "unknown"
         utils.log("++ Finished queing widget updates after playback ++", "notice")
 
     def onPlayBackStopped(self):
