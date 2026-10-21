@@ -11,8 +11,6 @@ import os
 import time
 import random
 
-import six
-
 from resources.lib import manage
 from resources.lib.common import settings
 from resources.lib.common import utils
@@ -93,7 +91,8 @@ def push_cache_queue(path, widget_id=None):
 
 def path2hash(path):
     if path is not None:
-        return hashlib.sha1(six.ensure_binary(path, "utf8")).hexdigest()
+        data = path.encode("utf-8") if isinstance(path, str) else path
+        return hashlib.sha1(data).hexdigest()
     else:
         return None
 

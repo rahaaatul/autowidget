@@ -1,9 +1,6 @@
 import traceback
 
-try:
-    from urllib.parse import parse_qsl
-except ImportError:
-    from urlparse import parse_qsl
+from urllib.parse import parse_qsl
 
 from resources.lib import add
 from resources.lib import backup

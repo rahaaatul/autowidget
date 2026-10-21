@@ -3,8 +3,6 @@ import xbmcgui
 import re
 import uuid
 
-import six
-
 from resources.lib import manage
 from resources.lib import refresh
 from resources.lib.common import cache
@@ -67,7 +65,7 @@ def my_groups_menu():
             cm = _create_group_context_items(group_id, group_type, idx, len(groups))
 
             directory.add_menu_item(
-                title=six.text_type(group_name),
+                title=str(group_name),
                 params={"mode": "group", "group": group_id},
                 info=group.get("info", {}),
                 art=group.get("art")
@@ -121,7 +119,7 @@ def group_menu(group_id):
 
     if len(paths) > 0:
         utils.log(
-            u"Showing {} group: {}".format(group_type, six.text_type(group_name)),
+            u"Showing {} group: {}".format(group_type, str(group_name)),
             "debug",
         )
         cm = []
@@ -182,7 +180,7 @@ def active_widgets_menu():
                     pass
 
                 title = "{} - {}".format(
-                    six.ensure_text(label), six.ensure_text(group_def.get("label", ""))
+                    utils.to_text(label), utils.to_text(group_def.get("label", ""))
                 )
             elif group_def:
                 title = group_def.get("label")
@@ -700,12 +698,12 @@ def _create_action_items(group_def, _id):
     if group_type == "widget":
         directory.add_separator(title=30009, char="/", sort="bottom")
         directory.add_menu_item(
-            title=utils.get_string(30053).format(six.text_type(group_name)),
+            title=utils.get_string(30053).format(str(group_name)),
             params={
                 "mode": "path",
                 "action": "static",
                 "group": group_id,
-                "id": six.text_type(_id),
+                "id": str(_id),
                 "refresh": refresh,
             },
             art=utils.get_art("folder"),
@@ -713,12 +711,12 @@ def _create_action_items(group_def, _id):
             props=props,
         )
         directory.add_menu_item(
-            title=utils.get_string(30016).format(six.text_type(group_name)),
+            title=utils.get_string(30016).format(str(group_name)),
             params={
                 "mode": "path",
                 "action": "cycling",
                 "group": group_id,
-                "id": six.text_type(_id),
+                "id": str(_id),
                 "refresh": refresh,
             },
             art=utils.get_art("shuffle"),
@@ -726,12 +724,12 @@ def _create_action_items(group_def, _id):
             props=props,
         )
         directory.add_menu_item(
-            title=utils.get_string(30065).format(six.text_type(group_name)),
+            title=utils.get_string(30065).format(str(group_name)),
             params={
                 "mode": "path",
                 "action": "merged",
                 "group": group_id,
-                "id": six.text_type(_id),
+                "id": str(_id),
                 "refresh": refresh,
             },
             art=utils.get_art("merge"),

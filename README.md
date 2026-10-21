@@ -8,13 +8,11 @@ See the [Kodi forum post](https://forum.kodi.tv/showthread.php?tid=352934) for m
 
 ## Kodi Compatibility
 ---
-AutoWidget supports the current Kodi releases:
+AutoWidget targets the latest stable Kodi release:
 
-* Kodi 21 "Omega" (21.3 or later) - latest stable release
-* Kodi 20 "Nexus"
-* Kodi 19 "Matrix"
+* Kodi 21 "Omega" (21.3 or later)
 
-The add-on uses the Kodi Python 3 API (`xbmc.python` 3.0.0), so it requires Kodi v19 "Matrix" or later.
+Older releases are not supported. The add-on uses the Kodi Python 3 API (`xbmc.python` 3.0.1) and no longer depends on `six`.
 
 ## Steps to Install
 ---

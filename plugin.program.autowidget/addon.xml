@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.program.autowidget" name="AutoWidget" version="CURRENT_VERSION" provider-name="drinfernoo">
     <requires>
-        <import addon="xbmc.python" version="3.0.0" />
+        <import addon="xbmc.python" version="3.0.1" />
         <import addon="script.module.pil" />
-        <import addon="script.module.six" />
     </requires>
     
     <extension point="xbmc.python.pluginsource" library="main.py">
@@ -45,8 +44,8 @@
         <source>https://www.github.com/drinfernoo/plugin.program.autowidget/</source>
         <news>
 3.8.0
- - Add support for Kodi 21 (Omega)
- - Declare the Kodi Python API requirement (xbmc.python 3.0.0)
+ - Target Kodi 21 "Omega" (21.3 or later) and drop support for older releases
+ - Remove the "six" dependency now that Python 3 is always used
  - Use the Kodi core strings API that replaced xbmc.getLocalizedString
  - Use xbmc.LOGINFO now that xbmc.LOGNOTICE has been removed
  - Keep the service running when free memory can't be determined

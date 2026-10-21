@@ -14,25 +14,13 @@ import time
 import unicodedata
 import datetime
 
-import six
 from PIL import Image
 
 from resources.lib.common import settings
 
-try:
-    from urllib.parse import unquote
-except ImportError:
-    from urlparse import unquote
+from urllib.parse import unquote
 
-# xbmcvfs.translatePath was introduced in Kodi v19 (Matrix),
-# xbmc.translatePath was removed in the same release.
-try:
-    translatePath = xbmcvfs.translatePath
-except AttributeError:
-    translatePath = xbmc.translatePath
-
-# xbmc.LOGNOTICE was removed in Kodi v19 (Matrix), xbmc.LOGINFO is used instead.
-_log_notice = getattr(xbmc, "LOGNOTICE", None) or xbmc.LOGINFO
+translatePath = xbmcvfs.translatePath
 
 _addon_id = settings.get_addon_info("id")
 _addon_data = settings.get_addon_info("profile")
@@ -226,6 +214,15 @@ def make_holding_path(label, art, hash=None):
     }
 
 
+def to_text(value):
+    """Text version of a value, decoding bytes when needed."""
+    if value is None:
+        return None
+    if isinstance(value, bytes):
+        return value.decode("utf-8")
+    return str(value)
+
+
 def ft(seconds):
     return str(datetime.timedelta(seconds=int(seconds)))
 
@@ -238,11 +235,11 @@ def log(msg, level="debug"):
     if level == "debug":
         _level = xbmc.LOGDEBUG
     elif level in ["notice", "info"]:
-        _level = _log_notice
+        _level = xbmc.LOGINFO
     elif level == "error":
         _level = xbmc.LOGERROR
 
-    msg = u"{}: {}".format(_addon_id, six.text_type(msg))
+    msg = u"{}: {}".format(_addon_id, to_text(msg))
     try:
         xbmc.log(msg, _level)
     except UnicodeEncodeError:
@@ -298,7 +295,7 @@ def get_art(filename, color=None):
             if color.lower() not in ["white", "#ffffff"]:
                 new_path = os.path.join(themed_path, "{}-{}.png".format(filename, _i))
                 if not xbmcvfs.exists(new_path):
-                    new_bytes = six.BytesIO()
+                    new_bytes = io.BytesIO()
                     icon = Image.open(path).convert("RGBA")
                     overlay = Image.new("RGBA", icon.size, color)
                     Image.composite(overlay, icon, icon).save(new_bytes, format='png')
@@ -376,7 +373,7 @@ def update_container(reload=False):
 
     if reload:
         if in_media:
-            write_file(refresh_time, six.text_type(time.time()))
+            write_file(refresh_time, str(time.time()))
         else:
             log("Triggering library update to reload widgets", "debug")
             xbmc.executebuiltin("UpdateLibrary(video, AutoWidget)")
@@ -406,7 +403,7 @@ def get_valid_filename(filename):
 
 
 def get_unique_id(key):
-    return "{}-{}".format(get_valid_filename(six.ensure_text(key)), time.time()).lower()
+    return "{}-{}".format(get_valid_filename(to_text(key)), time.time()).lower()
 
 
 def convert(input):
@@ -414,8 +411,8 @@ def convert(input):
         return {convert(key): convert(value) for key, value in input.items()}
     elif isinstance(input, list):
         return [convert(element) for element in input]
-    elif isinstance(input, six.text_type):
-        return six.ensure_text(input)
+    elif isinstance(input, str):
+        return input
 
     return input
 
@@ -462,7 +459,7 @@ def read_json(file, log_file=False, default={}):
         return default
     with contextlib.closing(xbmcvfs.File(file, "r")) as f:
         try:
-            content = six.ensure_text(f.read())
+            content = to_text(f.read())
             data = json.loads(content)
         except (ValueError, TypeError, UnicodeDecodeError, NameError, FileNotFoundError) as e:
             log("Could not read JSON from {}: {}".format(file, e), level="error")
@@ -490,9 +487,9 @@ def get_string(_id, kodi=False):
         # Core strings are now returned by the add-on API itself,
         # ids outside of the add-on's own range come from Kodi core.
         try:
-            return six.text_type(xbmcaddon.Addon().getLocalizedString(_id))
+            return str(xbmcaddon.Addon().getLocalizedString(_id))
         except Exception:
-            return six.text_type(_id)
+            return str(_id)
     return settings.get_localized_string(_id)
 
 
@@ -548,7 +545,7 @@ def clean_artwork_url(url):
     return url
 
 
-# File properties supported by every Kodi release we support (v19 "Matrix" and later).
+# File properties supported by Kodi v21 "Omega".
 # Only used as a fallback when Kodi can't be introspected.
 _default_info_keys = [
     "title",
@@ -636,7 +633,10 @@ _default_info_keys = [
     "datenew",
     "customproperties",
     "albumduration",
+    "userrating",
+    "songvideourl",
 ]
+
 
 _info_keys = None
 
@@ -677,7 +677,7 @@ def get_info_keys():
 def call_builtin(action, delay=0):
     if delay:
         xbmc.sleep(delay)
-    xbmc.executebuiltin(six.text_type(action))
+    xbmc.executebuiltin(str(action))
 
 
 def call_jsonrpc(request):
