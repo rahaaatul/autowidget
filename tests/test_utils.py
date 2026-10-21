@@ -1,3 +1,5 @@
+import os
+
 from resources.lib.common import utils
 
 KODI_21_FIELDS = [
@@ -109,3 +111,36 @@ def test_log_uses_the_info_level(monkeypatch):
     assert logged[-1] == utils.xbmc.LOGWARNING
     utils.log("hello", "error")
     assert logged[-1] == utils.xbmc.LOGERROR
+
+
+def test_clean_artwork_url_keeps_local_paths_absolute():
+    """Local artwork has to stay absolute.
+
+    Kodi treats an absolute path as a full path, a "special://" url can be
+    mistaken for a skin relative one, which broke the artwork of the
+    add-on's own icons in skins like Arctic Fuse 3.
+    """
+    local = os.path.join(utils._addon_root, "resources", "media", "fanart", "folder.png")
+    cleaned = utils.clean_artwork_url(local)
+    assert cleaned == local
+    assert "special://" not in cleaned
+
+
+def test_clean_artwork_url_keeps_remote_urls():
+    remote = "https://image.tmdb.org/t/p/w500/abc.jpg"
+    assert utils.clean_artwork_url(remote) == remote
+
+
+def test_clean_artwork_url_turns_special_home_urls_into_absolute_paths():
+    """Caches written by older versions are repaired when they are read."""
+    cleaned = utils.clean_artwork_url("special://home/Thumbnails/1/abc.jpg")
+    assert cleaned == os.path.join(utils._home, "Thumbnails", "1", "abc.jpg")
+    assert "special://" not in cleaned
+
+
+def test_clean_artwork_url_strips_the_image_wrapper():
+    assert utils.clean_artwork_url("image:///tmp/poster.jpg") == "/tmp/poster.jpg"
+    assert (
+        utils.clean_artwork_url("image:///tmp/poster.jpg@320x320")
+        == "image:///tmp/poster.jpg@320x320"
+    )

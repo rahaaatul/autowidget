@@ -604,12 +604,21 @@ def get_condition(cond):
 
 
 def clean_artwork_url(url):
+    """Normalise an artwork url so that Kodi is always able to resolve it.
+
+    Local files are published as an absolute path on purpose. Kodi treats an
+    absolute path as a full path and never resolves it against the skin media
+    folder, whereas a "special://" url can be mistaken for a skin relative
+    one. That broke the artwork of the add-on's own icons in skins like
+    Arctic Fuse 3, where Kodi glued the skin media folder in front of the url
+    and the image could not be loaded any more.
+    """
     if url.startswith("image://") and "@" in url:
-        url = url.replace(_home, "special://home/").rstrip("/")
+        url = url.replace("special://home/", _home).rstrip("/")
     else:
         url = (
             unquote(url)
-            .replace(_home, "special://home/")
+            .replace("special://home/", _home)
             .replace("image://", "")
             .rstrip("/")
         )
