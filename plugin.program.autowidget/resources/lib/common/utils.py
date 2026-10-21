@@ -450,10 +450,8 @@ def update_container(reload=False):
     is_scanning = get_condition("Library.IsScanningVideo") or get_condition(
         "Library.IsScanningMusic"
     )
-    if is_scanning:
-        return
 
-    if reload:
+    if reload and not is_scanning:
         if in_media:
             write_file(refresh_time, str(time.time()))
         else:
@@ -462,6 +460,8 @@ def update_container(reload=False):
             if xbmcvfs.exists(refresh_time):
                 remove_file(refresh_time)
     if in_plugin:
+        # Reloading the container is harmless while a scan is running, only
+        # the library update would start another one.
         xbmc.executebuiltin("Container.Refresh()")
 
 

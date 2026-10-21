@@ -195,3 +195,38 @@ def test_refresh_plugin_container_does_nothing_outside_a_media_window(monkeypatc
     utils.refresh_plugin_container()
 
     assert builtins == []
+
+
+def test_update_container_reloads_the_container_during_a_scan(monkeypatch, kodi):
+    """A scan must not stop the container from being reloaded."""
+    builtins = []
+    monkeypatch.setattr(
+        utils.xbmc,
+        "executebuiltin",
+        lambda command, wait=False: builtins.append(command),
+    )
+    monkeypatch.setattr(utils, "get_active_window", lambda: "media")
+    monkeypatch.setattr(
+        utils, "get_infolabel", lambda label: "plugin.program.autowidget"
+    )
+    monkeypatch.setattr(utils, "get_condition", lambda condition: True)
+
+    utils.update_container(True)
+
+    assert builtins == ["Container.Refresh()"]
+
+
+def test_update_container_does_not_update_the_library_during_a_scan(monkeypatch, kodi):
+    """A library update while a scan is running would start another one."""
+    builtins = []
+    monkeypatch.setattr(
+        utils.xbmc,
+        "executebuiltin",
+        lambda command, wait=False: builtins.append(command),
+    )
+    monkeypatch.setattr(utils, "get_active_window", lambda: "home")
+    monkeypatch.setattr(utils, "get_condition", lambda condition: True)
+
+    utils.update_container(True)
+
+    assert builtins == []
