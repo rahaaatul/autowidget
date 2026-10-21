@@ -95,6 +95,43 @@ def add_sort_methods(handle):
         xbmcplugin.addSortMethod(handle, method)
 
 
+def parse_duration(value):
+    """Convert a duration to the number of seconds Kodi expects.
+
+    Accepts a number of seconds or a "[HH:]MM:SS" string as used by
+    some plugins. Returns None when the value can't be parsed.
+    """
+    if isinstance(value, (int, float)):
+        return int(value)
+
+    if not isinstance(value, str):
+        return None
+
+    value = value.strip()
+
+    if not value:
+        return None
+
+    if ":" not in value:
+        try:
+            return int(value)
+        except ValueError:
+            return None
+
+    parts = value.split(":")
+    if len(parts) > 3:
+        return None
+
+    try:
+        seconds = 0
+        for part in parts:
+            seconds = seconds * 60 + int(part)
+    except ValueError:
+        return None
+
+    return seconds
+
+
 def add_menu_item(
     title="",
     params=None,
@@ -181,6 +218,10 @@ def add_menu_item(
                     item.setMimeType(value)
                 elif key == "artist":
                     new_value = [value]
+                elif key == "duration":
+                    # Kodi wants the duration in seconds, some plugins
+                    # return it as a "[HH:]MM:SS" string instead.
+                    new_value = parse_duration(value)
                 else:
                     new_value = (
                         value

@@ -29,6 +29,14 @@ Older releases are not supported. The add-on uses the Kodi Python 3 API (`xbmc.p
 ---
 To get started using AutoWidget, open the Kodi context menu on any other menu inside Kodi, like the "Popular" menu from your favorite add-on, or the "Movies -> Titles" section of your video library, and choose `Add to AutoWidget Group`. Follow the prompts to add a new path, and then use your skin of choice to set up a widget directed at the group you created. Reload your skin, and you should have a fresh, shiny new AutoWidget!
 
+A group can hold more than one list ("path"). In your skin, point a widget at `Add-ons > AutoWidgets > My Groups > {group} > {group mode}`:
+
+* **Static** shows one path of the group, you pick which one.
+* **Cycling** periodically moves to another path of the group, either the next one or a random one. The interval is set in the add-on settings.
+* **Merged** combines all paths of the group into a single list.
+
+To add a whole folder of lists to a group at once, use `Add to AutoWidget Group > Explode menu to Group`.
+
 For a more detailed guide, check out [the wiki](https://github.com/drinfernoo/plugin.program.autowidget/wiki/How-to-Use-AutoWidget)!
 
 ## YouTube Playlist

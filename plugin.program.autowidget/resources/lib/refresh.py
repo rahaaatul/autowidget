@@ -330,14 +330,20 @@ def refresh(widget_id, widget_def=None, paths=None, force=False, single=False):
 
                 widget_def["path"] = path_id
                 if widget_def["path"]:
-                    path_label = manage.get_path_by_id(path_id, group_id).get(
-                        "label", ""
-                    )
-                    widget_def["label"] = path_label
-                    widget_def["updated"] = 0 if force else current_time
+                    path_def = manage.get_path_by_id(path_id, group_id)
+                    if path_def:
+                        widget_def["label"] = path_def.get("label", "")
+                        widget_def["updated"] = 0 if force else current_time
 
-                    manage.save_path_details(widget_def)
-                    _update_strings(widget_def)
+                        manage.save_path_details(widget_def)
+                        _update_strings(widget_def)
+                    else:
+                        utils.log(
+                            "Path {} of group {} no longer exists".format(
+                                path_id, group_id
+                            ),
+                            "warning",
+                        )
 
         if single:
             utils.update_container(True)

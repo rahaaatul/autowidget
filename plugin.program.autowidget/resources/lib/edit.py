@@ -120,7 +120,7 @@ def _remove_path(path_id, group_id, over=False):
     del dialog
 
 
-def remove_widget(widget_id, over=False):
+def _remove_widget(widget_id, over=False):
     dialog = xbmcgui.Dialog()
     if not over:
         choice = dialog.yesno("AutoWidget", utils.get_string(30024))
@@ -197,7 +197,7 @@ def _show_widget_options(edit_def):
     if idx < 0:
         return
     elif idx == len(options) - 1:
-        remove_widget(edit_def["id"])
+        _remove_widget(edit_def["id"])
         utils.update_container()
         return
     else:

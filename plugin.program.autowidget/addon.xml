@@ -50,6 +50,10 @@
  - Use the Kodi core strings API that replaced xbmc.getLocalizedString
  - Use xbmc.LOGINFO now that xbmc.LOGNOTICE has been removed
  - Keep the service running when free memory can't be determined
+ - Fix an error when a widget points at a path that no longer exists
+ - Accept a duration given as "[HH:]MM:SS" as Kodi expects it in seconds
+ - Correct the French translation and repair the colour tags of several translations
+ - Add a test suite
 3.7.0
  - Optimize caching for performance and reliability
  - Fix direct shortcuts

@@ -239,6 +239,8 @@ def log(msg, level="debug"):
         _level = xbmc.LOGDEBUG
     elif level in ["notice", "info"]:
         _level = xbmc.LOGINFO
+    elif level == "warning":
+        _level = xbmc.LOGWARNING
     elif level == "error":
         _level = xbmc.LOGERROR
 

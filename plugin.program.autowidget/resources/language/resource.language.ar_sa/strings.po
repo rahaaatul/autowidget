@@ -230,12 +230,12 @@ msgstr ""
 #: /resources/lib/edit.py:141
 msgctxt "#30039"
 msgid "[COLOR firebrick][B]Continue[/B][/COLOR]"
-msgstr "[COLOR فايربريك] [ب] متابعة [/B][/COLOR]"
+msgstr "[COLOR firebrick] [B] متابعة [/B][/COLOR]"
 
 #: /resources/lib/edit.py:142
 msgctxt "#30040"
 msgid "[COLOR lawngreen][B]Disable[/B][/COLOR]"
-msgstr "[لون لون القانون] [ب] تعطيل [/B][/COLOR]"
+msgstr "[COLOR lawngreen] [B] تعطيل [/B][/COLOR]"
 
 #: /resources/lib/edit.py:168 /resources/lib/menu.py:594
 msgctxt "#30041"
@@ -255,12 +255,7 @@ msgid ""
 "refresh and may not work reliably. It is recommended that this only be done "
 "if you intend on repointing all of those widgets. This [COLOR "
 "firebrick]cannot[/COLOR] be undone."
-msgstr ""
-"سيؤدي هذا إلى إزالة [B] جميع [/ B] بيانات AutoWidget ، [B] بما في ذلك النسخ "
-"الاحتياطية [/ B] ، إذا تم تخزينها في مجلد بيانات الوظيفة الإضافية. لن يتم "
-"تحديث أي أدوات تلقائية حالية بعد الآن وقد لا تعمل بشكل موثوق. من المستحسن أن"
-" يتم ذلك فقط إذا كنت تنوي إعادة تعيين كل تلك الأدوات. لا يمكن التراجع عن "
-"[COLOR firebrick] [/ COLOR]."
+msgstr "سيؤدي هذا إلى إزالة [B] جميع [/B] بيانات AutoWidget ، [B] بما في ذلك النسخ الاحتياطية [/B] ، إذا تم تخزينها في مجلد بيانات الوظيفة الإضافية. لن يتم تحديث أي أدوات تلقائية حالية بعد الآن وقد لا تعمل بشكل موثوق. من المستحسن أن يتم ذلك فقط إذا كنت تنوي إعادة تعيين كل تلك الأدوات. لا يمكن التراجع عن [COLOR firebrick] [/COLOR]."
 
 #: /resources/lib/menu.py:536 /resources/lib/menu.py:587
 msgctxt "#30044"
@@ -539,10 +534,7 @@ msgid ""
 "Do you want to clear or keep the current {}?\n"
 "\n"
 "[B]{}[/B]: {}"
-msgstr ""
-"هل تريد مسح أو الاحتفاظ بالتيار {}؟\n"
-"\n"
-"[ب] {}[/B]: {}"
+msgstr "هل تريد مسح أو الاحتفاظ بالتيار {}؟\\n\\n[B] {}[/B]: {}"
 
 #: /resources/lib/edit.py:430
 msgctxt "#30097"

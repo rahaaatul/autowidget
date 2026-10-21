@@ -233,12 +233,12 @@ msgstr ""
 #: /resources/lib/edit.py:141
 msgctxt "#30039"
 msgid "[COLOR firebrick][B]Continue[/B][/COLOR]"
-msgstr "[ΧΡΩΜΑΤΟ πυροσβέστες] [Β] Συνέχεια[/B][/ΈΓΧΡΩΜΟ]"
+msgstr "[COLOR firebrick] [B] Συνέχεια[/B][/COLOR]"
 
 #: /resources/lib/edit.py:142
 msgctxt "#30040"
 msgid "[COLOR lawngreen][B]Disable[/B][/COLOR]"
-msgstr "[ΧΡΩΜΑΤΙΚΟ γκαζόν] [Β] Απενεργοποίηση[/B][/COLOR]"
+msgstr "[COLOR lawngreen] [B] Απενεργοποίηση[/B][/COLOR]"
 
 #: /resources/lib/edit.py:168 /resources/lib/menu.py:594
 msgctxt "#30041"
@@ -258,13 +258,7 @@ msgid ""
 "refresh and may not work reliably. It is recommended that this only be done "
 "if you intend on repointing all of those widgets. This [COLOR "
 "firebrick]cannot[/COLOR] be undone."
-msgstr ""
-"Αυτό θα καταργήσει [B]όλα[/B] δεδομένα για το AutoWidget, "
-"[B]συμπεριλαμβανομένων των αντιγράφων ασφαλείας[/B], εάν είναι αποθηκευμένα "
-"στον φάκελο δεδομένων πρόσθετου. Τυχόν τρέχοντα AutoWidgets δεν θα "
-"ανανεώνονται πλέον και ενδέχεται να μην λειτουργούν αξιόπιστα. Συνιστάται να"
-" γίνεται αυτό μόνο εάν σκοπεύετε να επανατοποθετήσετε όλα αυτά τα γραφικά "
-"στοιχεία. Αυτό το [COLOR πυρότουβλο]δεν μπορεί[/COLOR] να αναιρεθεί."
+msgstr "Αυτό θα καταργήσει [B]όλα[/B] δεδομένα για το AutoWidget, [B]συμπεριλαμβανομένων των αντιγράφων ασφαλείας[/B], εάν είναι αποθηκευμένα στον φάκελο δεδομένων πρόσθετου. Τυχόν τρέχοντα AutoWidgets δεν θα ανανεώνονται πλέον και ενδέχεται να μην λειτουργούν αξιόπιστα. Συνιστάται να γίνεται αυτό μόνο εάν σκοπεύετε να επανατοποθετήσετε όλα αυτά τα γραφικά στοιχεία. Αυτό το [COLOR firebrick]δεν μπορεί[/COLOR] να αναιρεθεί."
 
 #: /resources/lib/menu.py:536 /resources/lib/menu.py:587
 msgctxt "#30044"
@@ -547,10 +541,7 @@ msgid ""
 "Do you want to clear or keep the current {}?\n"
 "\n"
 "[B]{}[/B]: {}"
-msgstr ""
-"Θέλετε να καταργήσετε ή να διατηρήσετε το τρέχον {};\n"
-"\n"
-"[Β] {}[/B]: {}"
+msgstr "Θέλετε να καταργήσετε ή να διατηρήσετε το τρέχον {};\\n\\n[B] {}[/B]: {}"
 
 #: /resources/lib/edit.py:430
 msgctxt "#30097"
