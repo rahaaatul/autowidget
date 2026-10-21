@@ -13,6 +13,7 @@ from resources.lib import manage
 from resources.lib.common import cache
 from resources.lib.common import settings
 from resources.lib.common import utils
+from resources.lib.common import version
 
 _addon_data = settings.get_addon_info("profile")
 
@@ -26,9 +27,14 @@ class RefreshService(xbmc.Monitor):
         # Threads is IO bound more than CPU bound so would depend more disk
         # speed and RAM than anything else. how to pick a default value for that?
         # RAM is maybe biggest factor. low ram = more plugins at once = more swap on low disks
-        mem_used = float(xbmc.getInfoLabel('System.FreeMemory').replace("MB",""))
-        self.low_end = mem_used < 500
-        utils.log("+++++ STARTING AUTOWIDGET SERVICE Free Ram: {}, Low End: {} +++++".format(mem_used, self.low_end), "info")
+        mem_used = utils.get_free_memory_mb()
+        self.low_end = mem_used is not None and mem_used < 500
+        utils.log(
+            "+++++ STARTING AUTOWIDGET SERVICE on Kodi {} Free Ram: {}MB, Low End: {} +++++".format(
+                version.get_version_string(), mem_used, self.low_end
+            ),
+            "info",
+        )
 
         self.player = Player()
         utils.ensure_addon_data()

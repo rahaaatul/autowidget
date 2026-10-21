@@ -6,6 +6,16 @@ AutoWidget is a program add-on for Kodi, designed to give a more dynamic and int
 
 See the [Kodi forum post](https://forum.kodi.tv/showthread.php?tid=352934) for more information.
 
+## Kodi Compatibility
+---
+AutoWidget supports the current Kodi releases:
+
+* Kodi 21 "Omega" (21.3 or later) - latest stable release
+* Kodi 20 "Nexus"
+* Kodi 19 "Matrix"
+
+The add-on uses the Kodi Python 3 API (`xbmc.python` 3.0.0), so it requires Kodi v19 "Matrix" or later.
+
 ## Steps to Install
 ---
 1.  Go to the Kodi file manager.

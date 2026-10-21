@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.program.autowidget" name="AutoWidget" version="CURRENT_VERSION" provider-name="drinfernoo">
     <requires>
+        <import addon="xbmc.python" version="3.0.0" />
         <import addon="script.module.pil" />
         <import addon="script.module.six" />
     </requires>
@@ -43,6 +44,12 @@
         <website>https://www.github.com/drinfernoo/</website>
         <source>https://www.github.com/drinfernoo/plugin.program.autowidget/</source>
         <news>
+3.8.0
+ - Add support for Kodi 21 (Omega)
+ - Declare the Kodi Python API requirement (xbmc.python 3.0.0)
+ - Use the Kodi core strings API that replaced xbmc.getLocalizedString
+ - Use xbmc.LOGINFO now that xbmc.LOGNOTICE has been removed
+ - Keep the service running when free memory can't be determined
 3.7.0
  - Optimize caching for performance and reliability
  - Fix direct shortcuts

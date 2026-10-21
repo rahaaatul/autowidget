@@ -1,4 +1,5 @@
 import xbmc
+import xbmcaddon
 import xbmcgui
 import xbmcvfs
 
@@ -7,6 +8,7 @@ import contextlib
 import io
 import json
 import os
+import re
 import string
 import time
 import unicodedata
@@ -22,10 +24,15 @@ try:
 except ImportError:
     from urlparse import unquote
 
+# xbmcvfs.translatePath was introduced in Kodi v19 (Matrix),
+# xbmc.translatePath was removed in the same release.
 try:
     translatePath = xbmcvfs.translatePath
 except AttributeError:
     translatePath = xbmc.translatePath
+
+# xbmc.LOGNOTICE was removed in Kodi v19 (Matrix), xbmc.LOGINFO is used instead.
+_log_notice = getattr(xbmc, "LOGNOTICE", None) or xbmc.LOGINFO
 
 _addon_id = settings.get_addon_info("id")
 _addon_data = settings.get_addon_info("profile")
@@ -231,10 +238,7 @@ def log(msg, level="debug"):
     if level == "debug":
         _level = xbmc.LOGDEBUG
     elif level in ["notice", "info"]:
-        try:
-            _level = xbmc.LOGNOTICE
-        except AttributeError:
-            _level = xbmc.LOGINFO
+        _level = _log_notice
     elif level == "error":
         _level = xbmc.LOGERROR
 
@@ -482,7 +486,13 @@ def write_json(file, content):
 
 def get_string(_id, kodi=False):
     if kodi:
-        return six.text_type(xbmc.getLocalizedString(_id))
+        # xbmc.getLocalizedString was removed in Kodi v19 (Matrix).
+        # Core strings are now returned by the add-on API itself,
+        # ids outside of the add-on's own range come from Kodi core.
+        try:
+            return six.text_type(xbmcaddon.Addon().getLocalizedString(_id))
+        except Exception:
+            return six.text_type(_id)
     return settings.get_localized_string(_id)
 
 
@@ -502,6 +512,25 @@ def get_infolabel(label):
     return xbmc.getInfoLabel(label)
 
 
+def get_free_memory_mb():
+    """Free system memory in MB, or None when it can't be determined.
+
+    "System.FreeMemory" returns a value like "1234MB" on Kodi v19+.
+    """
+    try:
+        label = xbmc.getInfoLabel("System.FreeMemory")
+    except Exception:
+        return None
+
+    if not label:
+        return None
+
+    try:
+        return float(re.sub(r"[^0-9.]", "", label))
+    except ValueError:
+        return None
+
+
 def get_condition(cond):
     return xbmc.getCondVisibility(cond)
 
@@ -519,22 +548,130 @@ def clean_artwork_url(url):
     return url
 
 
+# File properties supported by every Kodi release we support (v19 "Matrix" and later).
+# Only used as a fallback when Kodi can't be introspected.
+_default_info_keys = [
+    "title",
+    "artist",
+    "albumartist",
+    "genre",
+    "year",
+    "rating",
+    "album",
+    "track",
+    "duration",
+    "comment",
+    "lyrics",
+    "musicbrainztrackid",
+    "musicbrainzartistid",
+    "musicbrainzalbumid",
+    "musicbrainzalbumartistid",
+    "playcount",
+    "fanart",
+    "director",
+    "trailer",
+    "tagline",
+    "plot",
+    "plotoutline",
+    "originaltitle",
+    "lastplayed",
+    "writer",
+    "studio",
+    "mpaa",
+    "cast",
+    "country",
+    "imdbnumber",
+    "premiered",
+    "productioncode",
+    "runtime",
+    "set",
+    "showlink",
+    "streamdetails",
+    "top250",
+    "votes",
+    "firstaired",
+    "season",
+    "episode",
+    "showtitle",
+    "thumbnail",
+    "file",
+    "resume",
+    "artistid",
+    "albumid",
+    "tvshowid",
+    "setid",
+    "watchedepisodes",
+    "disc",
+    "tag",
+    "art",
+    "genreid",
+    "displayartist",
+    "albumartistid",
+    "description",
+    "theme",
+    "mood",
+    "style",
+    "albumlabel",
+    "sorttitle",
+    "episodeguide",
+    "uniqueid",
+    "dateadded",
+    "size",
+    "lastmodified",
+    "mimetype",
+    "specialsortseason",
+    "specialsortepisode",
+    "sortartist",
+    "musicbrainzreleasegroupid",
+    "isboxset",
+    "totaldiscs",
+    "disctitle",
+    "releasedate",
+    "originaldate",
+    "bpm",
+    "bitrate",
+    "samplerate",
+    "channels",
+    "datemodified",
+    "datenew",
+    "customproperties",
+    "albumduration",
+]
+
+_info_keys = None
+
+
 def get_info_keys():
-    params = {
-        "jsonrpc": "2.0",
-        "id": 1,
-        "method": "JSONRPC.Introspect",
-        "params": {
-            "getmetadata": True,
-            "filter": {
-                "getreferences": True,
-                "id": "List.Fields.Files",
-                "type": "type",
+    """List of file properties the running Kodi is able to return.
+
+    The list is introspected from Kodi itself as it changes between
+    releases (Kodi v21 "Omega" added "songvideourl" for example).
+    The result is cached since it can't change while Kodi is running.
+    """
+    global _info_keys
+
+    if _info_keys is None:
+        params = {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "JSONRPC.Introspect",
+            "params": {
+                "getmetadata": True,
+                "filter": {
+                    "getreferences": True,
+                    "id": "List.Fields.Files",
+                    "type": "type",
+                },
             },
-        },
-    }
-    info_keys = call_jsonrpc(params)
-    return info_keys["result"]["types"]["List.Fields.Files"]["items"]["enums"]
+        }
+        try:
+            info_keys = call_jsonrpc(params)
+            _info_keys = info_keys["result"]["types"]["List.Fields.Files"]["items"]["enums"]
+        except Exception as e:
+            log("Could not introspect file properties: {}".format(e), level="error")
+            _info_keys = list(_default_info_keys)
+
+    return _info_keys
 
 
 def call_builtin(action, delay=0):

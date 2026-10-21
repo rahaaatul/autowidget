@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: circleci/python:2
+      - image: cimg/python:3.12
     steps:
       - checkout
       - run: |
@@ -24,7 +24,7 @@ jobs:
         type: boolean
         default: false
     docker:
-      - image: circleci/python:2
+      - image: cimg/python:3.12
     steps:
       - attach_workspace:
           at: /tmp
