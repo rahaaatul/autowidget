@@ -251,6 +251,19 @@ def _get_options(edit_def, useThumbs=None):
     return options
 
 
+def _get_path_id(path):
+    """The id of a path, widgets created before 3.3.0 stored the whole path."""
+    if isinstance(path, dict):
+        return path.get("id", "")
+    return path
+
+
+def _get_path_label(path_id, group_id=""):
+    """The name of a path, falls back to its id when it is not defined."""
+    path_def = manage.get_path_by_id(path_id, group_id)
+    return path_def.get("label", path_id)
+
+
 def _get_widget_options(edit_def):
     options = []
     all_keys = sorted(edit_def.keys())
@@ -293,13 +306,14 @@ def _get_widget_options(edit_def):
                 if edit_def["action"] not in ["static", "merged"]:
                     continue
 
-                paths = []
+                group_id = edit_def.get("group", "")
                 if isinstance(_def, list):
-                    for i in _def:
-                        paths.append(i["label"])
+                    paths = [
+                        _get_path_label(_get_path_id(i), group_id) for i in _def
+                    ]
                     label = ", ".join(paths)
                 else:
-                    label = _def
+                    label = _get_path_label(_get_path_id(_def), group_id)
 
         try:
             options.append(f"[B]{formatted_key}[/B]: {label}")
@@ -487,15 +501,14 @@ def _get_widget_value(edit_def, key):
             choice = dialog.multiselect(utils.get_string(30088), labels)
             if choice:
                 for i in choice:
-                    paths.append(groups[i])
+                    paths.append(groups[i]["id"])
                 value = paths
-            del dialog
         else:
             choice = dialog.select(utils.get_string(30087), labels)
             if choice < 0:
                 del dialog
                 return
-            value = groups[choice]
+            value = groups[choice]["id"]
     else:
         default = edit_def.get(key)
         value = dialog.input(utils.get_string(30094).format(key), defaultt=str(default))
