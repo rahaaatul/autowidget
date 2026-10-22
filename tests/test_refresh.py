@@ -83,3 +83,30 @@ def test_queue_is_processed_during_playback_when_enabled():
 def test_queue_is_processed_when_nothing_is_playing():
     service = _service(playing_video=False, refresh_during_playback=False)
     assert service._skip_for_playback() is False
+
+
+def test_the_worker_marks_the_task_as_done(monkeypatch, kodi):
+    """The counter of the queue has to go back to zero.
+
+    Without task_done() it grows with every update and join() would hang.
+    """
+    service = object.__new__(refresh.RefreshService)
+    service.queue = refresh.OrderedSetQueue()
+    service.low_end = False
+    service.player = type("Player", (), {"isPlayingVideo": lambda self: False})()
+    service.refresh_during_playback = True
+
+    aborts = []
+
+    def abort_requested():
+        aborts.append(True)
+        # the worker stops after the first item
+        return len(aborts) > 1
+
+    service.abortRequested = abort_requested
+    monkeypatch.setattr(refresh.cache, "cache_and_update", lambda *a, **k: set())
+
+    service.queue.put(("hash", "plugin://path", "widget"))
+    service._processQueue()
+
+    assert service.queue.unfinished_tasks == 0

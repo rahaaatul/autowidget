@@ -37,8 +37,10 @@ class RefreshService(xbmc.Monitor):
         self._update_properties()
         self._clean_widgets()
         self.queue = OrderedSetQueue()
+        self.threads = []
         for _ in range(1 if self.low_end else 4):
-            thread = threading.Thread(target=self._processQueue)
+            thread = threading.Thread(target=self._processQueue, daemon=True)
+            self.threads.append(thread)
             thread.start()
         self._update_widgets()
 
@@ -132,6 +134,7 @@ class RefreshService(xbmc.Monitor):
                 continue
             try:
                 hash, path, widget_id = self.queue.get(timeout=5)
+                self.queue.task_done()
             except queue.Empty:
                 # TODO: first run of queue. first refresh now?
                 continue
