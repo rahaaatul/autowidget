@@ -952,3 +952,13 @@ msgstr "Jaar, nieuwste eerst"
 msgctxt "#30176"
 msgid "Sort"
 msgstr "Sorteren"
+
+#: /resources/settings.xml:4
+msgctxt "#30177"
+msgid "Widgets"
+msgstr "Widgets"
+
+#: /resources/settings.xml:4
+msgctxt "#30178"
+msgid "Service"
+msgstr "Dienst"

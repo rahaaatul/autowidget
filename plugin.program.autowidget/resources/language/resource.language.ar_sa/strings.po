@@ -940,3 +940,13 @@ msgstr "السنة، الأحدث أولاً"
 msgctxt "#30176"
 msgid "Sort"
 msgstr "ترتيب"
+
+#: /resources/settings.xml:4
+msgctxt "#30177"
+msgid "Widgets"
+msgstr "الأدوات"
+
+#: /resources/settings.xml:4
+msgctxt "#30178"
+msgid "Service"
+msgstr "الخدمة"

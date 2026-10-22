@@ -98,17 +98,17 @@ def test_no_broken_markup(language):
 # translated.
 UNTRANSLATED = {
     "ar_sa": 5,
-    "da_dk": 5,
-    "de_de": 11,
-    "el_gr": 2,
-    "en_gb": 177,
-    "en_us": 177,
-    "es_es": 2,
-    "es_mx": 5,
-    "fr_fr": 3,
+    "da_dk": 6,
+    "de_de": 12,
+    "el_gr": 3,
+    "en_gb": 179,
+    "en_us": 179,
+    "es_es": 3,
+    "es_mx": 6,
+    "fr_fr": 5,
     "it_it": 11,
-    "nl_nl": 6,
-    "pt_br": 7,
+    "nl_nl": 7,
+    "pt_br": 8,
 }
 
 

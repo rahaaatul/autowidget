@@ -985,3 +985,13 @@ msgstr "Année, les plus récentes d'abord"
 msgctxt "#30176"
 msgid "Sort"
 msgstr "Trier"
+
+#: /resources/settings.xml:4
+msgctxt "#30177"
+msgid "Widgets"
+msgstr "Widgets"
+
+#: /resources/settings.xml:4
+msgctxt "#30178"
+msgid "Service"
+msgstr "Service"
