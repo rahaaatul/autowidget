@@ -1,3 +1,9 @@
+## [1.1.0-dev.3](https://github.com/rahaaatul/autowidget/compare/v1.1.0-dev.2...v1.1.0-dev.3) (2026-10-22)
+
+### 🐛 Bug Fixes
+
+* **cache:** keep the changes of a path instead of a sample on every update ([d1b5195](https://github.com/rahaaatul/autowidget/commit/d1b51950fac857a1a3386c8d19ccb9377d3ea764))
+
 ## [1.1.0-dev.2](https://github.com/rahaaatul/autowidget/compare/v1.1.0-dev.1...v1.1.0-dev.2) (2026-10-21)
 
 ### ✨ New Features

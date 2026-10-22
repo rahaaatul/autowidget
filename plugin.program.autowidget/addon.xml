@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.program.autowidget" name="AutoWidget" version="1.1.0~dev.2" provider-name="rahaaatul">
+<addon id="plugin.program.autowidget" name="AutoWidget" version="1.1.0~dev.3" provider-name="rahaaatul">
     <requires>
         <import addon="xbmc.python" version="3.0.1" />
         <import addon="script.module.pil" />
@@ -43,6 +43,10 @@
         <website>https://github.com/rahaaatul/</website>
         <source>https://github.com/rahaaatul/autowidget/</source>
         <news>
+1.1.0~dev.3
+🐛 Bug Fixes
+  - **cache:** keep the changes of a path instead of a sample on every update ([d1b5195](https://github.com/rahaaatul/autowidget/commit/d1b51950fac857a1a3386c8d19ccb9377d3ea764))
+
 1.1.0~dev.2
 ✨ New Features
   - **menu:** sort the merged widget from its context menu ([d584bb2](https://github.com/rahaaatul/autowidget/commit/d584bb22f8b3aa14e5eebb2266e9aa67af924156))
