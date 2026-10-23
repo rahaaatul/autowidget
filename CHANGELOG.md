@@ -1,3 +1,32 @@
+## [1.1.0-dev.4](https://github.com/rahaaatul/autowidget/compare/v1.1.0-dev.3...v1.1.0-dev.4) (2026-10-23)
+
+### ✨ New Features
+
+* **settings:** rename widgets.merged_sort to widgets.sort with 9 sort options at basic level ([327012f](https://github.com/rahaaatul/autowidget/commit/327012fc307068941320942a377094feb6a69883))
+* **settings:** split the settings into the four levels of Kodi ([6165f06](https://github.com/rahaaatul/autowidget/commit/6165f06c620e58320682f72ab8bb73ad30f5e64b))
+
+## [1.1.0-dev.3](https://github.com/rahaaatul/autowidget/compare/v1.1.0-dev.2...v1.1.0-dev.3) (2026-10-22)
+
+### 🐛 Bug Fixes
+
+* **cache:** keep the changes of a path instead of a sample on every update ([d1b5195](https://github.com/rahaaatul/autowidget/commit/d1b51950fac857a1a3386c8d19ccb9377d3ea764))
+
+## [1.1.0-dev.2](https://github.com/rahaaatul/autowidget/compare/v1.1.0-dev.1...v1.1.0-dev.2) (2026-10-21)
+
+### ✨ New Features
+
+* **menu:** sort the merged widget from its context menu ([d584bb2](https://github.com/rahaaatul/autowidget/commit/d584bb22f8b3aa14e5eebb2266e9aa67af924156))
+
+### 🚀 Continuous Integration
+
+* back-merge main into dev after a release ([a4295d6](https://github.com/rahaaatul/autowidget/commit/a4295d677ba4a979dd7bea0f257d4fed51685a4a))
+
+## [1.1.0-dev.1](https://github.com/rahaaatul/autowidget/compare/v1.0.0...v1.1.0-dev.1) (2026-10-21)
+
+### ✨ New Features
+
+* **menu:** sort the items of a merged widget ([809c476](https://github.com/rahaaatul/autowidget/commit/809c47622b6ac35fe6ab634527c2bf86953ec3ca))
+
 ## 1.0.0 (2026-10-21)
 
 ### ⚠ BREAKING CHANGES

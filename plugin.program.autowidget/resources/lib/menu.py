@@ -287,7 +287,18 @@ def show_path(
     titles=None,
     num=1,
     merged=False,
+    items=None,
 ):
+    """Show the items of a path.
+
+    When `items` is given the list items are collected in it instead of
+    being added to the directory.  A merged widget uses that to sort the
+    items of all its paths before they are shown.
+    """
+    add_items = items is None
+    if items is None:
+        items = []
+
     hide_watched = settings.get_setting_bool("widgets.hide_watched")
     show_next = settings.get_setting_int("widgets.show_next")
     paged_widgets = settings.get_setting_bool("widgets.paged")
@@ -317,18 +328,20 @@ def show_path(
     if stack:
         title = _previous
         # title = utils.get_string(30084).format(len(stack))
-        directory.add_menu_item(
-            title=title,
-            params={
-                "mode": "path",
-                "action": "update",
-                "id": widget_id,
-                "path": "",
-                "target": "back",
-            },
-            art=utils.get_art("back", color),
-            isFolder=num > 1,
-            props={"specialsort": "top", "autoLabel": path_label},
+        items.append(
+            {
+                "title": title,
+                "params": {
+                    "mode": "path",
+                    "action": "update",
+                    "id": widget_id,
+                    "path": "",
+                    "target": "back",
+                },
+                "art": utils.get_art("back", color),
+                "isFolder": num > 1,
+                "props": {"specialsort": "top", "autoLabel": path_label},
+            }
         )
 
     for pos, file in enumerate(files):
@@ -370,14 +383,16 @@ def show_path(
                 "target": "next",
             }
 
-            directory.add_menu_item(
-                title=label,
-                params=update_params if paged_widgets and not merged else None,
-                path=file["file"] if not paged_widgets or merged else None,
-                art=utils.get_art("next_page", color),
-                info=file,
-                isFolder=not paged_widgets or merged,
-                props=properties,
+            items.append(
+                {
+                    "title": label,
+                    "params": update_params if paged_widgets and not merged else None,
+                    "path": file["file"] if not paged_widgets or merged else None,
+                    "art": utils.get_art("next_page", color),
+                    "info": file,
+                    "isFolder": not paged_widgets or merged,
+                    "props": properties,
+                }
             )
             # Ensure we precache next page for faster access
             cache.cache_expiry(file["file"], widget_id)
@@ -404,15 +419,21 @@ def show_path(
                     info_type, filetype, file.get("id", -1)
                 )
 
-            directory.add_menu_item(
-                title=file["label"],
-                path=filepath if filepath else file["file"],
-                info=file,
-                isFolder=is_folder,
-                props=properties,
+            items.append(
+                {
+                    "title": file["label"],
+                    "path": filepath if filepath else file["file"],
+                    "info": file,
+                    "isFolder": is_folder,
+                    "props": properties,
+                }
             )
 
             titles.append(title)
+
+    if add_items:
+        for item in items:
+            directory.add_menu_item(**item)
 
     return titles, path_label, content
 
@@ -553,6 +574,72 @@ def path_menu(group_id, action, widget_id):
         return True, group_name, None
 
 
+def _item_date(info):
+    """The date of an item as a sortable string, empty when it has none."""
+    for field in ("premiered", "firstaired", "aired"):
+        value = info.get(field)
+        if value:
+            return str(value)[:10]
+
+    year = info.get("year")
+    if year:
+        return f"{int(year):04d}-01-01"
+
+    return ""
+
+
+def _sort_key_date(item):
+    date = _item_date(item.get("info") or {})
+    return (1, date) if date else (0, "")
+
+
+def _sort_key_year(item):
+    year = (item.get("info") or {}).get("year")
+    return (1, int(year)) if year else (0, 0)
+
+
+def _sort_key_rating(item):
+    rating = (item.get("info") or {}).get("rating")
+    return (1, float(rating)) if rating else (0, 0.0)
+
+
+def _sort_key_title(item):
+    info = item.get("info") or {}
+    title = info.get("sorttitle") or info.get("title") or info.get("label") or ""
+    return (1, str(title).lower())
+
+
+# The sort of the items of a merged widget, the first one keeps the order
+# of the paths of the group.
+_merged_sorts = {
+    1: (_sort_key_date, True),
+    2: (_sort_key_date, False),
+    3: (_sort_key_rating, True),
+    4: (_sort_key_title, False),
+    5: (_sort_key_year, True),
+}
+
+
+def _sort_merged_items(items, widget_def=None):
+    """Sort the items of a merged widget.
+
+    The sort of the widget is used, the setting of the add-on is the default
+    for the widgets that do not have one.  Without a sort the items are
+    shown path by path, the items of the first path of the group first.
+    """
+    sort = None
+    if widget_def is not None:
+        sort = widget_def.get("sort")
+    if sort is None:
+        sort = settings.get_setting_int("widgets.merged_sort")
+
+    if not sort or sort not in _merged_sorts:
+        return items
+
+    key, reverse = _merged_sorts[sort]
+    return sorted(items, key=key, reverse=reverse)
+
+
 def merged_path(group_id, widget_id):
     _window = utils.get_active_window()
 
@@ -578,6 +665,7 @@ def merged_path(group_id, widget_id):
 
     if widget_def:
         titles = []
+        items = []
         for idx, path in enumerate(paths):
             # simple compatibility with pre-3.3.0 widgets
             if isinstance(path, dict):
@@ -596,7 +684,11 @@ def merged_path(group_id, widget_id):
                 titles=titles,
                 num=len(paths),
                 merged=True,
+                items=items,
             )
+
+        for item in _sort_merged_items(items, widget_def):
+            directory.add_menu_item(**item)
 
         return titles, cat, type
     else:
@@ -769,7 +861,17 @@ def _create_action_items(group_def, _id):
                         "&action=edit_merged"
                         f"&group={group_id})"
                     ),
-                )
+                ),
+                (
+                    utils.get_string(30176),
+                    (
+                        "RunPlugin("
+                        "plugin://plugin.program.autowidget/"
+                        "?mode=manage"
+                        "&action=edit_merged_sort"
+                        f"&group={group_id})"
+                    ),
+                ),
             ],
         )
 

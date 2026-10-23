@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.program.autowidget" name="AutoWidget" version="1.0.0" provider-name="rahaaatul">
+<addon id="plugin.program.autowidget" name="AutoWidget" version="1.1.0~dev.4" provider-name="rahaaatul">
     <requires>
         <import addon="xbmc.python" version="3.0.1" />
         <import addon="script.module.pil" />
@@ -43,6 +43,26 @@
         <website>https://github.com/rahaaatul/</website>
         <source>https://github.com/rahaaatul/autowidget/</source>
         <news>
+1.1.0~dev.4
+✨ New Features
+  - **settings:** rename widgets.merged_sort to widgets.sort with 9 sort options at basic level ([327012f](https://github.com/rahaaatul/autowidget/commit/327012fc307068941320942a377094feb6a69883))
+  - **settings:** split the settings into the four levels of Kodi ([6165f06](https://github.com/rahaaatul/autowidget/commit/6165f06c620e58320682f72ab8bb73ad30f5e64b))
+
+1.1.0~dev.3
+🐛 Bug Fixes
+  - **cache:** keep the changes of a path instead of a sample on every update ([d1b5195](https://github.com/rahaaatul/autowidget/commit/d1b51950fac857a1a3386c8d19ccb9377d3ea764))
+
+1.1.0~dev.2
+✨ New Features
+  - **menu:** sort the merged widget from its context menu ([d584bb2](https://github.com/rahaaatul/autowidget/commit/d584bb22f8b3aa14e5eebb2266e9aa67af924156))
+
+🚀 Continuous Integration
+  - back-merge main into dev after a release ([a4295d6](https://github.com/rahaaatul/autowidget/commit/a4295d677ba4a979dd7bea0f257d4fed51685a4a))
+
+1.1.0~dev.1
+✨ New Features
+  - **menu:** sort the items of a merged widget ([809c476](https://github.com/rahaaatul/autowidget/commit/809c47622b6ac35fe6ab634527c2bf86953ec3ca))
+
 1.0.0
 ⚠ BREAKING CHANGES
   - target Kodi 21.3 (Omega) only and drop the six dependency
