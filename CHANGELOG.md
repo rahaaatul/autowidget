@@ -1,3 +1,10 @@
+## [1.1.0-dev.4](https://github.com/rahaaatul/autowidget/compare/v1.1.0-dev.3...v1.1.0-dev.4) (2026-10-23)
+
+### ✨ New Features
+
+* **settings:** rename widgets.merged_sort to widgets.sort with 9 sort options at basic level ([327012f](https://github.com/rahaaatul/autowidget/commit/327012fc307068941320942a377094feb6a69883))
+* **settings:** split the settings into the four levels of Kodi ([6165f06](https://github.com/rahaaatul/autowidget/commit/6165f06c620e58320682f72ab8bb73ad30f5e64b))
+
 ## [1.1.0-dev.3](https://github.com/rahaaatul/autowidget/compare/v1.1.0-dev.2...v1.1.0-dev.3) (2026-10-22)
 
 ### 🐛 Bug Fixes
