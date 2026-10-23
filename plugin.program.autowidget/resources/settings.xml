@@ -4,7 +4,7 @@
         <setting label="$ADDON[plugin.program.autowidget 30080]" type="bool" id="widgets.hide_watched" default="false" level="0" />
         <setting label="$ADDON[plugin.program.autowidget 30078]" type="enum" id="widgets.show_next" lvalues="30064|30083|30062" default="1" level="1" />
         <setting label="$ADDON[plugin.program.autowidget 30081]" type="bool" id="widgets.paged" default="true" level="1" />
-        <setting label="$ADDON[plugin.program.autowidget 30169]" type="enum" id="widgets.merged_sort" lvalues="30170|30171|30172|30173|30174|30175" default="0" level="1" />
+        <setting label="$ADDON[plugin.program.autowidget 30169]" type="enum" id="widgets.sort" lvalues="30170|30175|30174|30179|30171|30172|30173|30180|30181" default="0" level="0" />
         <setting label="$ADDON[plugin.program.autowidget 30114]" type="bool" id="widgets.hide_duplicates" default="true" level="2" />
         <setting label="$ADDON[plugin.program.autowidget 30115]" subsetting="true" type="bool" id="widgets.prefer_episodes" default="true" enable="eq(-1,true)" level="2" />
     </category>

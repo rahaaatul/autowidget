@@ -74,6 +74,17 @@ def test_the_service_settings_are_in_the_basic_level():
     assert _find(settings, "30005").get("level") == "0"
 
 
+def test_the_sort_setting_is_in_the_basic_level():
+    _root, settings = _parse()
+
+    sort = _find(settings, "30169")
+    assert sort.get("id") == "widgets.sort", f"expected widgets.sort, got {sort.get('id')}"
+    assert sort.get("level") == "0", "widgets.sort is not at level 0"
+    assert sort.get("default") == "0", "widgets.sort default is not 0"
+    lvalues = sort.get("lvalues", "")
+    assert lvalues.count("|") == 8, f"widgets.sort has {lvalues.count('|') + 1} lvalues, expected 9"
+
+
 def test_the_settings_are_valid_xml():
     """The action urls hold an ampersand, it has to be escaped."""
     root = ET.parse(SETTINGS).getroot()

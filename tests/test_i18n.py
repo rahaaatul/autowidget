@@ -97,18 +97,18 @@ def test_no_broken_markup(language):
 # the translations don't get worse. Lower the number when a string is
 # translated.
 UNTRANSLATED = {
-    "ar_sa": 5,
-    "da_dk": 6,
-    "de_de": 12,
-    "el_gr": 3,
-    "en_gb": 179,
-    "en_us": 179,
-    "es_es": 3,
-    "es_mx": 6,
-    "fr_fr": 5,
-    "it_it": 11,
-    "nl_nl": 7,
-    "pt_br": 8,
+    "ar_sa": 8,
+    "da_dk": 9,
+    "de_de": 15,
+    "el_gr": 6,
+    "en_gb": 182,
+    "en_us": 182,
+    "es_es": 6,
+    "es_mx": 9,
+    "fr_fr": 8,
+    "it_it": 14,
+    "nl_nl": 10,
+    "pt_br": 11,
 }
 
 

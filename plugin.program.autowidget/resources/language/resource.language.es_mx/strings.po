@@ -913,38 +913,53 @@ msgstr "Rutas"
 
 #: /resources/settings.xml:11
 msgctxt "#30169"
-msgid "Sort Merged Widgets"
+msgid "Sort Widgets"
 msgstr "Ordenar los widgets combinados"
 
 #: /resources/settings.xml:11
 msgctxt "#30170"
-msgid "No sorting"
+msgid "Widgets (First to Last)"
 msgstr "Sin ordenar"
 
 #: /resources/settings.xml:11
 msgctxt "#30171"
-msgid "Date, newest first"
+msgid "Date, Newest to Oldest"
 msgstr "Fecha, más recientes primero"
 
 #: /resources/settings.xml:11
 msgctxt "#30172"
-msgid "Date, oldest first"
+msgid "Date, Oldest to Newest"
 msgstr "Fecha, más antiguos primero"
 
 #: /resources/settings.xml:11
 msgctxt "#30173"
-msgid "Rating, best first"
+msgid "Rating, Best to Worst"
 msgstr "Valoración, mejores primero"
 
 #: /resources/settings.xml:11
 msgctxt "#30174"
-msgid "Title, A-Z"
+msgid "Title, A to Z"
 msgstr "Título, A-Z"
 
 #: /resources/settings.xml:11
 msgctxt "#30175"
-msgid "Year, newest first"
+msgid "Widgets (Last to First)"
 msgstr "Año, más recientes primero"
+
+#: /resources/settings.xml:11
+msgctxt "#30179"
+msgid "Title, Z to A"
+msgstr "Title, Z to A"
+
+#: /resources/settings.xml:11
+msgctxt "#30180"
+msgid "Rating, Worst to Best"
+msgstr "Rating, Worst to Best"
+
+#: /resources/settings.xml:11
+msgctxt "#30181"
+msgid "Custom"
+msgstr "Custom"
 
 #: /resources/lib/menu.py:757
 msgctxt "#30176"
